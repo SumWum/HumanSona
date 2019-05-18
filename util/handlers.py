@@ -16,8 +16,3 @@ class Handlers:
         def dump(data):
             with open("config.json", "w", encoding="utf8") as file:
                     json.dump(data, file, indent=4)
-
-        def set_channel(type: str, id: int):
-            data = Handlers.JSON.read()
-            data[type] = id
-            Handlers.JSON.dump(data)

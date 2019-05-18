@@ -39,8 +39,6 @@ class Bot(commands.AutoShardedBot):
 
         return message
 
-
-
     async def load_plugins(self):
         plugins = ["owner", "general", "submissions"]
         for plugin in plugins:
