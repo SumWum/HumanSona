@@ -1,0 +1,18 @@
+{
+    "token": "NTasjid2hiuDSHOud2dib.MaSDoji2.HasldIOHDWihDALI82jsD",
+    "prefix": "!",
+    "guild": 430126138310153166,
+    "user_role": 53688352539369978,
+    "gatekeeper_role": 52315668658169856,
+    "admin_role": 46987625598806753,
+    "intro_channel": 57930277134763213325,
+    "queue_channel": 579307504969627754,
+    "approved_channel": 579230776984105773,
+    "denied_channel": 579307708678833008,
+    "translator": {
+      "DENIED_APPLICATION": "Your application has been denied. Reason: $reason.",
+      "APPROVED_APPLICATION": "Your application has been approved. You can now access the rest of the server.",
+      "FORBIDDEN_COMMAND_CHANNEL": "$author You can't use this command here.",
+      "DENY_QUESTION": "$user, Why did you deny the question?"
+    }
+}
