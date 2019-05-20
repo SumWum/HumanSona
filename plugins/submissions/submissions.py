@@ -68,7 +68,7 @@ class Submissions(commands.Cog, name="Submissions"):
         elif str(reaction) == "🚫":
             question = await self.queue_channel.send(self.bot.translate("DENY_QUESTION", user=user))
             def check(reason):
-                return self.queue_channel == reason.channel, user == reason.author
+                return self.queue_channel == reason.channel and user == reason.author
             try:
                 reason = await self.bot.wait_for("message", check=check, timeout=300)
             except:
