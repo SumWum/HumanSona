@@ -17,7 +17,7 @@ class Submissions(commands.Cog, name="Submissions"):
         self.admin_role = self.guild.get_role(self.bot.config["admin_role"])
         self.user_role = self.guild.get_role(self.bot.config["user_role"])
         self.gatekeeper_role = self.guild.get_role(self.bot.config["gatekeeper_role"])
-        self.welcome_role = self.guild.get_roles(self.bot.config["welcome_role"])
+        self.welcome_role = self.guild.get_role(self.bot.config["welcome_role"])
 
 
     @commands.command()
