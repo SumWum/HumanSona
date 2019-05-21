@@ -39,7 +39,7 @@ class Bot(commands.AutoShardedBot):
         if not role == None:
             message = message.replace("$role", role.name)
         if not role_mention == None:
-            message = message.replace("$role_ping", role_mention.mention)
+            message = message.replace("$role_mention", role_mention.mention)
         if not reason == None:
             message = message.replace("$reason", reason)
 

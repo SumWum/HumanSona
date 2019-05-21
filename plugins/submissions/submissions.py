@@ -72,7 +72,7 @@ class Submissions(commands.Cog, name="Submissions"):
             await self.approved_channel.send(embed=embed)
             await self.welcome_channel.send(self.bot.translate("WELCOME_MESSAGE",
                 user=member,
-                role_ping=self.welcome_role,
+                role_mention=self.welcome_role,
                 guild=reaction.message.guild,
                 channel=self.selfrole_channel,
                 channel2=self.rules_channel))
