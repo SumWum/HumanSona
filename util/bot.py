@@ -35,7 +35,7 @@ class Bot(commands.AutoShardedBot):
         if not channel == None:
             message = message.replace("$channel", channel.mention)
         if not channel_2 == None:
-            message = message.replace("$channel_2", channel2.mention)
+            message = message.replace("$channel_2", channel_2.mention)
         if not role == None:
             message = message.replace("$role", role.name)
         if not role_mention == None:
