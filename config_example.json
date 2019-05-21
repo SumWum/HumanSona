@@ -18,6 +18,6 @@
       "APPROVED_APPLICATION": "Your application has been approved. You can now access the rest of the server.",
       "FORBIDDEN_COMMAND_CHANNEL": "$author, You can't use this command here.",
       "DENY_APPLICATION": "$user, Why did you deny the application?",
-      "WELCOME_MESSAGE": "$role_mention\nHey everyone!! Welcome $user to $guild Check out $channel and $channel2 so we can get to know you better too!"
+      "WELCOME_MESSAGE": "$role_mention\nHey everyone!! Welcome $user to $guild Check out $channel and $channel_2 so we can get to know you better too!"
     }
 }

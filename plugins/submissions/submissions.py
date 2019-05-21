@@ -75,7 +75,7 @@ class Submissions(commands.Cog, name="Submissions"):
                 role_mention=self.welcome_role,
                 guild=reaction.message.guild,
                 channel=self.selfrole_channel,
-                channel2=self.rules_channel))
+                channel_2=self.rules_channel))
             return await message.delete()
 
         elif str(reaction) == "🚫":
