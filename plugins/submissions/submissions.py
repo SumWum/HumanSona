@@ -11,9 +11,13 @@ class Submissions(commands.Cog, name="Submissions"):
         self.queue_channel = self.guild.get_channel(self.bot.config["queue_channel"])
         self.approved_channel = self.guild.get_channel(self.bot.config["approved_channel"])
         self.denied_channel = self.guild.get_channel(self.bot.config["denied_channel"])
+        self.welcome_channel = self.guild.get_channel(self.bot.config["welcome_channel"])
+        self.selfrole_channel = self.guild.get_channel(self.bot.config["selfrole_channel"])
+        self.rules_channel = self.guild.get_channel(self.bot.config["rules_channel"])
         self.admin_role = self.guild.get_role(self.bot.config["admin_role"])
         self.user_role = self.guild.get_role(self.bot.config["user_role"])
         self.gatekeeper_role = self.guild.get_role(self.bot.config["gatekeeper_role"])
+        self.welcome_role = self.guild.get_roles(self.bot.config["welcome_role"])
 
 
     @commands.command()
@@ -59,14 +63,23 @@ class Submissions(commands.Cog, name="Submissions"):
         if str(reaction) == "✅":
             await member.add_roles(self.user_role)
             await member.remove_roles(self.gatekeeper_role)
-            await member.send(self.bot.translate("APPROVED_APPLICATION"))
+            try:
+                await member.send(self.bot.translate("APPROVED_APPLICATION"))
+            except:
+                pass
             embed.color = discord.Color(0x00ce75)
             embed.set_footer(text=f"Approved by {user}.")
             await self.approved_channel.send(embed=embed)
+            await self.welcome_channel.send(self.bot.translate("WELCOME_MESSAGE",
+                user=member,
+                role_ping=self.welcome_role,
+                guild=reaction.message.guild,
+                channel=self.selfrole_channel,
+                channel2=self.rules_channel))
             return await message.delete()
 
         elif str(reaction) == "🚫":
-            question = await self.queue_channel.send(self.bot.translate("DENY_QUESTION", user=user))
+            question = await self.queue_channel.send(self.bot.translate("DENY_APPLICATION", user=user))
             def check(reason):
                 return self.queue_channel == reason.channel and user == reason.author
             try:
@@ -78,6 +91,9 @@ class Submissions(commands.Cog, name="Submissions"):
             embed.color = discord.Color(0xff3f3f)
             embed.set_footer(text=f"Denied by {user}.")
             embed.add_field(name="Reason", value=reason.content)
-            await member.send(self.bot.translate("DENIED_APPLICATION", reason=reason.content))
+            try:
+                await member.send(self.bot.translate("DENIED_APPLICATION", reason=reason.content))
+            except:
+                pass
             await self.denied_channel.send(embed=embed)
             return await message.delete()

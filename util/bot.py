@@ -18,7 +18,9 @@ class Bot(commands.AutoShardedBot):
         guild: typing.Optional[discord.Guild]=None,
         user: typing.Optional[typing.Union[discord.User, discord.Member]]=None,
         channel: typing.Optional[discord.TextChannel]=None,
+        channel_2: typing.Optional[discord.TextChannel]=None,
         role: typing.Optional[discord.Role]=None,
+        role_mention: typing.Optional[discord.Role]=None,
         reason: typing.Optional[str]=None):
 
         message = self.config["translator"][message]
@@ -32,8 +34,12 @@ class Bot(commands.AutoShardedBot):
             message = message.replace("$user", user.mention)
         if not channel == None:
             message = message.reaplce("$channel", channel.mention)
+        if not channel_2 == None:
+            message = message.replace("$channel_2", channel2.mention)
         if not role == None:
             message = message.replace("$role", role.name)
+        if not role_mention == None:
+            message = message.replace("$role_ping", role_mention.mention)
         if not reason == None:
             message = message.replace("$reason", reason)
 
