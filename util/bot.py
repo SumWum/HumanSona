@@ -32,10 +32,10 @@ class Bot(commands.AutoShardedBot):
             message = message.replace("$guild", guild.name)
         if not user == None:
             message = message.replace("$user", user.mention)
-        if not channel == None:
-            message = message.replace("$channel", channel.mention)
         if not channel_2 == None:
             message = message.replace("$channel_2", channel_2.mention)
+        if not channel == None:
+            message = message.replace("$channel", channel.mention)
         if not role == None:
             message = message.replace("$role", role.name)
         if not role_mention == None:
