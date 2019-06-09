@@ -49,25 +49,21 @@ class Submissions(commands.Cog, name="Submissions"):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        reaction = discord.Reaction(payload)
-        """
-        reaction.emoji = payload.emoji
-        reaction.message = await self.guild.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        emoji = payload.emoji
+        message = await self.guild.get_channel(payload.channel_id).fetch_message(payload.message_id)
         user = self.guild.get_member(payload.user_id)
-        """
 
         if user.bot:
             return
-        if not reaction.message.channel == self.queue_channel:
+        if not message.channel == self.queue_channel:
             return
         if not self.admin_role in user.roles:
             return
-
-        message = reaction.message
+            
         embed = message.embeds[0]
         member = self.guild.get_member(int(embed.author.name.split(" | ")[1]))
 
-        if str(reaction.emoji) == "✅":
+        if str(emoji) == "✅":
             await member.add_roles(self.user_role)
             await member.remove_roles(self.gatekeeper_role)
             try:
@@ -80,12 +76,12 @@ class Submissions(commands.Cog, name="Submissions"):
             await self.welcome_channel.send(self.bot.translate("WELCOME_MESSAGE",
                 user=member,
                 role_mention=self.welcome_role,
-                guild=reaction.message.guild,
+                guild=message.guild,
                 channel=self.selfrole_channel,
                 channel_2=self.rules_channel))
             return await message.delete()
 
-        elif str(reaction.emoji) == "🚫":
+        elif str(emoji) == "🚫":
             question = await self.queue_channel.send(self.bot.translate("DENY_APPLICATION", user=user))
             def check(reason):
                 return self.queue_channel == reason.channel and user == reason.author
