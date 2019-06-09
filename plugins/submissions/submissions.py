@@ -49,7 +49,8 @@ class Submissions(commands.Cog, name="Submissions"):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        reaction = payload.emoji
+        reaction = discord.Reaction(payload)
+        reaction.emoji = payload.emoji
         reaction.message = await self.guild.get_channel(payload.channel_id).fetch_message(payload.message_id)
         user = self.guild.get_member(payload.user_id)
 
@@ -64,7 +65,7 @@ class Submissions(commands.Cog, name="Submissions"):
         embed = message.embeds[0]
         member = self.guild.get_member(int(embed.author.name.split(" | ")[1]))
 
-        if str(reaction) == "✅":
+        if str(reaction.emoji) == "✅":
             await member.add_roles(self.user_role)
             await member.remove_roles(self.gatekeeper_role)
             try:
@@ -82,7 +83,7 @@ class Submissions(commands.Cog, name="Submissions"):
                 channel_2=self.rules_channel))
             return await message.delete()
 
-        elif str(reaction) == "🚫":
+        elif str(reaction.emoji) == "🚫":
             question = await self.queue_channel.send(self.bot.translate("DENY_APPLICATION", user=user))
             def check(reason):
                 return self.queue_channel == reason.channel and user == reason.author
