@@ -50,7 +50,7 @@ class Submissions(commands.Cog, name="Submissions"):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         reaction = payload.emoji
-        reaction.message = await self.bot.fetch_message(payload.message_id)
+        reaction.message = await self.guild.get_channel(payload.channel_id).fetch_message(payload.message_id)
         user = self.guild.get_member(payload.user_id)
 
         if user.bot:
