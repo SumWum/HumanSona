@@ -48,7 +48,11 @@ class Submissions(commands.Cog, name="Submissions"):
         await member.add_roles(self.gatekeeper_role)
 
     @commands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
+    async def on_raw_reaction_add(self, payload):
+        reaction = payload.emoji
+        reaction.message = await self.bot.fetch_message(payload.message_id)
+        user = self.guild.get_member(payload.user_id)
+
         if user.bot:
             return
         if not reaction.message.channel == self.queue_channel:
