@@ -19,28 +19,21 @@ class Submissions(commands.Cog, name="Submissions"):
         self.gatekeeper_role = self.guild.get_role(self.bot.config["gatekeeper_role"])
         self.welcome_role = self.guild.get_role(self.bot.config["welcome_role"])
 
-
-    @commands.command()
-    async def submit(self, ctx, *, text: str=None):
-        if not ctx.channel == self.intro_channel:
-            return await ctx.send(self.bot.translate("FORBIDDEN_COMMAND_CHANNEL", ctx=ctx))
-
-        embed = discord.Embed(color=discord.Color(0x7289DA))
-        embed.set_author(name=f"{ctx.author} | {str(ctx.author.id)}", icon_url=ctx.author.avatar_url)
-        embed.description = text
-        embed.timestamp = ctx.message.created_at
-        message = await self.queue_channel.send(embed=embed)
-
-        reactions = ["⬆", "⬇", "✅", "🚫"]
-        for reaction in reactions:
-            await message.add_reaction(reaction)
-
-
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.channel == self.intro_channel:
             if self.admin_role in message.author.roles:
                 return
+            embed = discord.Embed(color=discord.Color(0x7289DA))
+            embed.set_author(name=f"{message.author} | {str(message.author.id)}", icon_url=message.author.avatar_url)
+            embed.description = str(message.content)
+            embed.timestamp = message.created_at
+            message2 = await self.queue_channel.send(embed=embed)
+
+            reactions = ["⬆", "⬇", "✅", "🚫"]
+            for reaction in reactions:
+                await message2.add_reaction(reaction)
+
             await message.delete()
 
     @commands.Cog.listener()
@@ -49,9 +42,10 @@ class Submissions(commands.Cog, name="Submissions"):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        guild = self.bot.get_guild(self.bot.config["guild"])
         emoji = payload.emoji
-        message = await self.guild.get_channel(payload.channel_id).fetch_message(payload.message_id)
-        user = self.guild.get_member(payload.user_id)
+        message = await guild.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        user = guild.get_member(payload.user_id)
 
         if user.bot:
             return
@@ -59,9 +53,9 @@ class Submissions(commands.Cog, name="Submissions"):
             return
         if not self.admin_role in user.roles:
             return
-            
+
         embed = message.embeds[0]
-        member = self.guild.get_member(int(embed.author.name.split(" | ")[1]))
+        member = guild.get_member(int(embed.author.name.split(" | ")[1]))
 
         if str(emoji) == "✅":
             await member.add_roles(self.user_role)
