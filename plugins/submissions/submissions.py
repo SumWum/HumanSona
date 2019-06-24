@@ -67,13 +67,13 @@ class Submissions(commands.Cog, name="Submissions"):
             embed.color = discord.Color(0x00ce75)
             embed.set_footer(text=f"Approved by {user}.")
             await self.approved_channel.send(embed=embed)
-            embed = discord.Embed(color=discord.Color(0x9370DB))
-            embed.set_thumbnail(url=member.avatar_url)
-            embed.set_author(name=self.bot.translate("WELCOME_TITLE"), icon_url=member.avatar_url)
-            embed.description = self.bot.translate("WELCOME_DESC",
+            ebed = discord.Embed(color=discord.Color(0x9370DB))
+            ebed.set_thumbnail(url=member.avatar_url)
+            ebed.set_author(name=self.bot.translate("WELCOME_TITLE"), icon_url=member.avatar_url)
+            ebed.description = self.bot.translate("WELCOME_DESC",
                 channel=self.selfrole_channel,
                 channel_2=self.rules_channel)
-            await self.welcome_channel.send(self.bot.translate("WELCOME_MESSAGE", user=member, role_mention=self.welcome_role), embed=embed)
+            await self.welcome_channel.send(self.bot.translate("WELCOME_MESSAGE", user=member, role_mention=self.welcome_role), embed=ebed)
             return await message.delete()
 
         elif str(emoji) == "🚫":
