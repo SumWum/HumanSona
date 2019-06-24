@@ -73,7 +73,7 @@ class Submissions(commands.Cog, name="Submissions"):
             embed.description = self.bot.translate("WELCOME_DESC",
                 channel=self.selfrole_channel,
                 channel_2=self.rules_channel)
-            await self.welcome_channel.send(self.bot.translate("WElCOME_MESSAGE", user=member, role_mention=self.welcome_role), embed=embed)
+            await self.welcome_channel.send(self.bot.translate("WELCOME_MESSAGE", user=member, role_mention=self.welcome_role), embed=embed)
             return await message.delete()
 
         elif str(emoji) == "🚫":
