@@ -40,11 +40,13 @@ class Sona(commands.Cog, name="Sona"):
 
 
     @commands.command()
-    async def sona(self, ctx):
+    async def sona(self, ctx, member: discord.Member=None):
         """Displays your sona.\nIf the sona is NSFW then the command must be executed in a NSFW channel"""
         data = Handlers.Mongo.read()
+        if member == None:
+            member = ctx.author
         try:
-            sona = data["sonas"][str(ctx.author.id)]
+            sona = data["sonas"][str(member.id)]
         except:
             return await ctx.send(self.bot.translate("NO_SONA"))
 
@@ -56,7 +58,7 @@ class Sona(commands.Cog, name="Sona"):
             embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
         except:
             embed = discord.Embed(color=discord.Color(0x00ff7e))
-        embed.set_author(name=f"{ctx.author} | {str(ctx.author.id)}", icon_url=ctx.author.avatar_url)
+        embed.set_author(name=f"{member} | {str(member.id)}", icon_url=member.avatar_url)
         for question in sona:
             embed.add_field(name=question, value=sona[question])
         embed.set_image(url=sona["Picture"])
