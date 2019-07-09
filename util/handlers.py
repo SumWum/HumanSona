@@ -2,6 +2,11 @@ import json
 import os
 import discord
 import asyncio
+import pymongo
+
+client = pymongo.MongoClient("mongodb://localhost:27000/")
+db = client["furryguard-bot"]
+collection = db["data"]
 
 class Handlers:
     class JSON:
@@ -16,3 +21,17 @@ class Handlers:
         def dump(data):
             with open("config.json", "w", encoding="utf8") as file:
                     json.dump(data, file, indent=4)
+
+    class Mongo:
+        def read():
+            data = {}
+            for document in collection.find():
+                data[document["name"]] = document
+            return data
+
+        def create_document(name: str):
+            collection.insert_one({"name": name})
+
+        def save(data):
+            for document in data:
+                collection.find_and_modify(query={"name": document}, update={"$set": data[document]})

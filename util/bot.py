@@ -46,15 +46,16 @@ class Bot(commands.AutoShardedBot):
         return message
 
     async def load_plugins(self):
-        plugins = ["owner", "general", "submissions"]
+        plugins = ["plugins.owner", "plugins.general", "plugins.sona"]
         for plugin in plugins:
-            self.load_extension(f"plugins.{plugin}")
+            self.load_extension(f"{plugin}")
             print(f"Loaded {plugin}.")
         print("Starting...")
 
 
     async def on_ready(self):
         print("Starting...")
+        self.remove_command("help")
         await self.load_plugins()
         await self.update_activity()
         print(f"Logged in as {self.user} ({self.user.id})")
