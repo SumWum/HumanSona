@@ -35,3 +35,6 @@ class Handlers:
         def save(data):
             for document in data:
                 collection.find_and_modify(query={"name": document}, update={"$set": data[document]})
+
+        def remove_field(name, key):
+            collection.find_and_modify(query={"name": name}, update={"$unset": {key:1}})

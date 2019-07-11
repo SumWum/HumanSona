@@ -78,8 +78,27 @@ class EditSona(commands.Cog, name="EditSona"):
         if not (str(reaction) in self.fields or str(reaction) in self.special_fields):
             return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
-        print(str(reaction))
-        if not str(reaction) == "🍆" and not str(reaction) == "🖼":
+        if not sona["NSFW"] == True:
+            sona["Position"] == "Unspecified"
+
+        if not str(reaction) == "🍆" and not str(reaction) == "🖼" and not str(reaction) == "🍑":
+            question = self.questions[field]
+            try:
+                embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
+            except:
+                embed = discord.Embed(color=discord.Color(0x00ff7e))
+            embed.description = question
+            await ctx.send(embed=embed)
+
+            try:
+                answer = await self.bot.wait_for("message", check=check, timeout=1800)
+            except:
+                return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
+
+            sona[field] = answer.content
+        elif str(reaction) == "🍑":
+            if not sona["NSFW"] == True:
+                return await ctx.send(self.bot.translate("NSFW_SONA_REQUIRED"))
             question = self.questions[field]
             try:
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
@@ -166,13 +185,10 @@ class EditSona(commands.Cog, name="EditSona"):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        print("editsona")
         guild = self.bot.get_guild(self.bot.config["guild"])
         emoji = payload.emoji
-        try:
-            message = await (self.bot.get_channel(payload.channel_id)).fetch_message(payload.message_id)
-        except:
-            return
+        channel = guild.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
         user = guild.get_member(payload.user_id)
 
         if user.bot:
@@ -184,7 +200,6 @@ class EditSona(commands.Cog, name="EditSona"):
 
         embed = message.embeds[0]
         member = guild.get_member(int(embed.author.name.split(" | ")[1]))
-        print(member)
         if str(emoji) == "✅":
             data = Handlers.Mongo.read()
             answers = {}
