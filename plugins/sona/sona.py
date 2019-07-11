@@ -300,7 +300,7 @@ class Sona(commands.Cog, name="Sona"):
                     sona[key] = sona[key].replace("'", "\\`").replace('"', "“")
                 else:
                     sona[key] == sona[key]
-            rawsona = str(sona).replace("'", '"').replace("True", "\"True\"")
+            rawsona = str(sona).replace("'", '"').replace("True", "\"True\"").replace("False", "\"False\"")
             return await ctx.send(f"```json\n{rawsona}\n```")
 
         elif option == "Set":
