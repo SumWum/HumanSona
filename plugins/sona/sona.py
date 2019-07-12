@@ -33,6 +33,8 @@ class Sona(commands.Cog, name="Sona"):
             if not ctx.channel.is_nsfw():
                 return await ctx.send(self.bot.translate("FORBIDDEN_COMMAND_CHANNEL", ctx=ctx))
 
+        await message.add_reaction("👌")
+
         try:
             embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
         except:
