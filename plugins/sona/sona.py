@@ -7,38 +7,15 @@ import json
 class Sona(commands.Cog, name="Sona"):
     def __init__(self, bot):
         self.bot = bot
-        self.guild = self.bot.get_guild(self.bot.config["guild"])
-        self.admin_role = self.guild.get_role(self.bot.config["admin_role"])
-        self.dev_role = self.guild.get_role(self.bot.config["dev_role"])
-        self.sona_queue_channel = self.guild.get_channel(self.bot.config["sona_queue_channel"])
-        self.sona_approved_channel = self.guild.get_channel(self.bot.config["sona_approved_channel"])
-        self.sona_denied_channel = self.guild.get_channel(self.bot.config["sona_denied_channel"])
-        self.sona_edit_queue_channel = self.guild.get_channel(self.bot.config["sona_edit_queue_channel"])
-        self.sona_edit_approved_channel = self.guild.get_channel(self.bot.config["sona_edit_approved_channel"])
-        self.sona_edit_denied_channel = self.guild.get_channel(self.bot.config["sona_edit_denied_channel"])
-        self.special_fields = ["NSFW", "Picture"]
-        self.fields = {"💬": "Name",
-                       "⏰": "Age",
-                       "🚺": "Gender",
-                       "🐹": "Species",
-                       "🏳️‍🌈": "Orientation",
-                       "⬆": "Height",
-                       "🍔": "Weight",
-                       "😀": "Bio",
-                       "🍑": "Position",
-                       "🖼": "Picture",
-                       "🍆": "NSFW",
-                       "🔴": "Color"}
-        self.questions = {"Name": "Hey there! What's your fursona's name? You have 30 minutes for every question.",
-                          "Gender": "What's your fursona's gender?",
-                          "Age": "What's your fursona's age?",
-                          "Species": "What's your fursona's species",
-                          "Orientation": "What's your fursona's orientation?",
-                          "Height": "What's your fursona's height?",
-                          "Weight": "What's your fursona's weight?",
-                          "Bio": "What's your fursona's bio?",
-                          "Position": "Are Dom, Switch or Sub?",
-                          "Color": "What's your favourite color? This color will be used for the embed in the sona command. (HEX only, example: #00FF7E)"}
+        self.questions = {"Name": "What is your fursona's name?",
+                          "Gender": "What is your fursona's gender?",
+                          "Age": "What is your fursona's age?",
+                          "Species": "What is your fursona's species",
+                          "Orientation": "What is your fursona's sexual orientation?",
+                          "Height": "What is your fursona's height in inches (eg 66 inches)?",
+                          "Weight": "What is your fursona's weight in punds (eg 155lbs)?",
+                          "Bio": "What is your fursona's bio, if you have one (otherwise say `None`)? You have 30 minutes to write this before it times out automatically.",
+                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)"}
 
 
     @commands.command()
@@ -62,7 +39,8 @@ class Sona(commands.Cog, name="Sona"):
             embed = discord.Embed(color=discord.Color(0x00ff7e))
         embed.set_author(name=f"{member} | {str(member.id)}", icon_url=member.avatar_url)
         for question in sona:
-            embed.add_field(name=question, value=sona[question])
+            if not question == "Color" and not question == "NSFW" and not question == "Picture":
+                embed.add_field(name=question, value=sona[question])
         embed.set_image(url=sona["Picture"])
         embed.timestamp = ctx.message.created_at
 
@@ -76,6 +54,8 @@ class Sona(commands.Cog, name="Sona"):
     @commands.command()
     async def setsona(self, ctx):
         """Creates a sona."""
+        if not ctx.guild:
+            return
         data = Handlers.Mongo.read()
         if str(ctx.author.id) in data["sonas"]:
             return await ctx.send(self.bot.translate("SONA_EXISTS"))
@@ -95,7 +75,7 @@ class Sona(commands.Cog, name="Sona"):
         questions = self.questions
 
         # SFW or NSFW
-        question = "Is your fursona NSFW?"
+        question = "Is your fursona's picture or bio NSFW?"
         type = "NSFW"
         embed = discord.Embed(color=discord.Color(0x7289DA))
         embed.description = question
@@ -108,6 +88,9 @@ class Sona(commands.Cog, name="Sona"):
         except:
             return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
         if str(reaction) == "✅":
+            nsfw_role = ctx.guild.get_role(self.bot.config["guilds"][str(ctx.guild.id)]["nsfw_role"])
+            if not nsfw_role in ctx.author.roles:
+                return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
             answers[type] = True
         elif str(reaction) == "🚫":
             answers[type] = False
@@ -116,21 +99,18 @@ class Sona(commands.Cog, name="Sona"):
 
         for type in questions:
             question = questions[type]
-            if not answers["NSFW"] == True and not type == "Position":
-                embed = discord.Embed(color=discord.Color(0x7289DA))
-                embed.description = question
-                await ctx.send(embed=embed)
+            embed = discord.Embed(color=discord.Color(0x7289DA))
+            embed.description = question
+            await ctx.send(embed=embed)
 
-                try:
-                    answer = await self.bot.wait_for("message", check=check, timeout=1800)
-                except:
-                    return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
-                answers[type] = str(answer.content)
-            else:
-                answers["Position"] = "Unspecified."
+            try:
+                answer = await self.bot.wait_for("message", check=check, timeout=1800)
+            except:
+                return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
+            answers[type] = str(answer.content)
 
         # Picture
-        question = "What's your fursona's picture?"
+        question = "Post a link of your fursona's picture or send the image, if you have one (otherwise say `None`)."
         type = "Picture"
         embed = discord.Embed(color=discord.Color(0x7289DA))
         embed.description = question
@@ -156,11 +136,12 @@ class Sona(commands.Cog, name="Sona"):
             embed.add_field(name=question, value=answers[question])
         embed.set_image(url=answers["Picture"])
         embed.timestamp = ctx.message.created_at
+        sona_queue_channel = ctx.guild.get_channel(self.bot.config["guilds"][str(ctx.guild.id)]["sona_queue_channel"])
         try:
-            message = await self.sona_queue_channel.send(embed=embed)
+            message = await sona_queue_channel.send(embed=embed)
         except:
             embed.set_image(url="https://media.discordapp.net/attachments/579350335059918858/587607748653350944/Seperate_1.gif")
-            message = await self.sona_queue_channel.send(embed=embed)
+            message = await sona_queue_channel.send(embed=embed)
 
         reactions = ["⬆", "⬇", "✅", "🚫"]
         for reaction in reactions:
@@ -169,17 +150,27 @@ class Sona(commands.Cog, name="Sona"):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        guild = self.bot.get_guild(self.bot.config["guild"])
+        guild = self.bot.get_guild(payload.guild_id)
         emoji = payload.emoji
-        channel = guild.get_channel(payload.channel_id)
+        try:
+            channel = guild.get_channel(payload.channel_id)
+        except:
+            return
         message = await channel.fetch_message(payload.message_id)
         user = guild.get_member(payload.user_id)
 
+        guild_config = self.bot.config["guilds"][str(guild.id)]
+        admin_role = guild.get_role(guild_config["admin_role"])
+        dev_role = guild.get_role(guild_config["dev_role"])
+        sona_queue_channel = guild.get_channel(guild_config["sona_queue_channel"])
+        sona_approved_channel = guild.get_channel(guild_config["sona_approved_channel"])
+        sona_denied_channel = guild.get_channel(guild_config["sona_denied_channel"])
+
         if user.bot:
             return
-        if not message.channel == self.sona_queue_channel:
+        if not message.channel == sona_queue_channel:
             return
-        if not self.admin_role in user.roles:
+        if not admin_role in user.roles and not dev_role in user.roles:
             return
 
         embed = message.embeds[0]
@@ -194,6 +185,10 @@ class Sona(commands.Cog, name="Sona"):
                 answers["NSFW"] = True
             else:
                 answers["NSFW"] = False
+            if answers["Bio"] == "None":
+                answers["Bio"] = None
+            if answers["Color"] == "None":
+                answers["Color"] == "#00FF7E"
             data["sonas"][str(member.id)] = answers
             Handlers.Mongo.save(data)
             print(answers)
@@ -203,13 +198,13 @@ class Sona(commands.Cog, name="Sona"):
                 pass
             embed.color = discord.Color(0x00ce75)
             embed.set_footer(text=f"Approved by {user}.")
-            await self.sona_approved_channel.send(embed=embed)
+            await sona_approved_channel.send(embed=embed)
             return await message.delete()
 
         elif str(emoji) == "🚫":
-            question = await self.sona_queue_channel.send(self.bot.translate("DENY_SONA", user=user))
+            question = await sona_queue_channel.send(self.bot.translate("DENY_SONA", user=user))
             def check(reason):
-                return self.sona_queue_channel == reason.channel and user == reason.author
+                return sona_queue_channel == reason.channel and user == reason.author
             try:
                 reason = await self.bot.wait_for("message", check=check, timeout=300)
             except:
@@ -223,13 +218,16 @@ class Sona(commands.Cog, name="Sona"):
                 await member.send(self.bot.translate("DENIED_SONA", reason=reason.content))
             except:
                 pass
-            await self.sona_denied_channel.send(embed=embed)
+            await sona_denied_channel.send(embed=embed)
             return await message.delete()
 
 
     @commands.command(hidden=True)
     async def _sona(self, ctx, member: discord.Member=None):
-        if (not self.admin_role in ctx.author.roles) and (not self.dev_role in ctx.author.roles):
+        guild_config = self.bot.config["guilds"][str(ctx.guild.id)]
+        admin_role = ctx.guild.get_role(guild_config["admin_role"])
+        dev_role = ctx.guild.get_role(guild_config["dev_role"])
+        if (not admin_role in ctx.author.roles) and (not dev_role in ctx.author.roles):
             return
 
         if member == None:
@@ -296,11 +294,11 @@ class Sona(commands.Cog, name="Sona"):
 
         elif option == "Raw":
             for key in sona:
-                if not key == "NSFW":
+                if not key == "NSFW" and not sona[key] == None:
                     sona[key] = sona[key].replace("'", "\\`").replace('"', "“")
                 else:
                     sona[key] == sona[key]
-            rawsona = str(sona).replace("'", '"').replace("True", "\"True\"").replace("False", "\"False\"")
+            rawsona = str(sona).replace("'", '"').replace("True", "\"True\"").replace("False", "\"False\"").replace("None", "\"None\"")
             return await ctx.send(f"```json\n{rawsona}\n```")
 
         elif option == "Set":
@@ -321,6 +319,10 @@ class Sona(commands.Cog, name="Sona"):
                 newsona["NSFW"] = True
             else:
                 newsona["NSFW"] = False
+            if newsona["Picture"] == "None":
+                newsona["Picture"] = None
+            if newsona["Bio"] == "None":
+                newsona["Bio"] = None
             data["sonas"][str(member.id)] = newsona
             Handlers.Mongo.save(data)
             embed = discord.Embed(color=ctx.author.color)

@@ -8,15 +8,17 @@ from disputils import BotEmbedPaginator
 class General(commands.Cog, name="General"):
     def __init__(self, bot):
         self.bot = bot
-        self.guild = self.bot.get_guild(self.bot.config["guild"])
-        self.sfw_role = self.guild.get_role(self.bot.config["sfw_role"])
-        self.nsfw_roles = self.bot.config["nsfw_roles"]
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         member = after
-        if self.sfw_role in member.roles:
-            for role in self.nsfw_roles:
+        guild = member.guild
+        if not self.bot.config["guilds"][str(guild.id)]["name"] == "central":
+            return
+        sfw_role = guild.get_role(self.bot.config["guilds"][str(guild.id)]["sfw_role"])
+        nsfw_roles = self.bot.config["guilds"][str(guild.id)]["nsfw_roles"]
+        if sfw_role in member.roles:
+            for role in nsfw_roles:
                 role = member.guild.get_role(role)
                 await member.remove_roles(role)
 

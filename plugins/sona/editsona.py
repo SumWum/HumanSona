@@ -6,11 +6,6 @@ from util import Handlers
 class EditSona(commands.Cog, name="EditSona"):
     def __init__(self, bot):
         self.bot = bot
-        self.guild = self.bot.get_guild(self.bot.config["guild"])
-        self.admin_role = self.guild.get_role(self.bot.config["admin_role"])
-        self.sona_edit_queue_channel = self.guild.get_channel(self.bot.config["sona_edit_queue_channel"])
-        self.sona_edit_approved_channel = self.guild.get_channel(self.bot.config["sona_edit_approved_channel"])
-        self.sona_edit_denied_channel = self.guild.get_channel(self.bot.config["sona_edit_denied_channel"])
         self.special_fields = ["NSFW", "Picture"]
         self.fields = {"💬": "Name",
                        "⏰": "Age",
@@ -20,25 +15,26 @@ class EditSona(commands.Cog, name="EditSona"):
                        "⬆": "Height",
                        "🍔": "Weight",
                        "😀": "Bio",
-                       "🍑": "Position",
                        "🖼": "Picture",
                        "🍆": "NSFW",
                        "🔴": "Color"}
-        self.questions = {"Name": "Hey there! What's your fursona's name? You have 30 minutes for every question.",
-                          "Gender": "What's your fursona's gender?",
-                          "Age": "What's your fursona's age?",
-                          "Species": "What's your fursona's species",
-                          "Orientation": "What's your fursona's orientation?",
-                          "Height": "What's your fursona's height?",
-                          "Weight": "What's your fursona's weight?",
-                          "Bio": "What's your fursona's bio?",
-                          "Position": "Are Dom, Switch or Sub?",
-                          "Color": "What's your favourite color? This color will be used for the embed in the sona command. (HEX only, example: #00FF7E)"}
+        self.questions = {"Name": "What is your fursona's name?",
+                          "Gender": "What is your fursona's gender?",
+                          "Age": "What is your fursona's age?",
+                          "Species": "What is your fursona's species",
+                          "Orientation": "What is your fursona's sexual orientation?",
+                          "Height": "What is your fursona's height in inches (eg 66 inches)?",
+                          "Weight": "What is your fursona's weight in punds (eg 155lbs)?",
+                          "Bio": "What is your fursona's bio, if you have one (otherwise say `None`)? You have 30 minutes to write this before it times out automatically.",
+                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)"}
 
 
     @commands.command()
     async def editsona(self, ctx):
+        sona_edit_queue_channel = ctx.guild.get_channel(self.bot.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         """Edits your sona."""
+        if not ctx.guild:
+            return
         data = Handlers.Mongo.read()
         try:
             sona = data["sonas"][str(ctx.author.id)]
@@ -78,27 +74,8 @@ class EditSona(commands.Cog, name="EditSona"):
         if not (str(reaction) in self.fields or str(reaction) in self.special_fields):
             return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
-        if not sona["NSFW"] == True:
-            sona["Position"] == "Unspecified"
 
-        if not str(reaction) == "🍆" and not str(reaction) == "🖼" and not str(reaction) == "🍑":
-            question = self.questions[field]
-            try:
-                embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
-            except:
-                embed = discord.Embed(color=discord.Color(0x00ff7e))
-            embed.description = question
-            await ctx.send(embed=embed)
-
-            try:
-                answer = await self.bot.wait_for("message", check=check, timeout=1800)
-            except:
-                return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
-
-            sona[field] = answer.content
-        elif str(reaction) == "🍑":
-            if not sona["NSFW"] == True:
-                return await ctx.send(self.bot.translate("NSFW_SONA_REQUIRED"))
+        if not str(reaction) == "🍆" and not str(reaction) == "🖼":
             question = self.questions[field]
             try:
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
@@ -115,7 +92,7 @@ class EditSona(commands.Cog, name="EditSona"):
             sona[field] = answer.content
         elif str(reaction) == "🖼":
             # Picture
-            question = "What's your fursona's picture?"
+            question = "Post a link of your fursona's picture or send the image, if you have one (otherwise say `None`)."
             try:
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
             except:
@@ -134,7 +111,7 @@ class EditSona(commands.Cog, name="EditSona"):
 
         elif str(reaction) == "🍆":
             # SFW or NSFW
-            question = "Is your fursona NSFW?"
+            question = "Is your fursona's picture or bio NSFW?"
             try:
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
             except:
@@ -149,6 +126,9 @@ class EditSona(commands.Cog, name="EditSona"):
             except:
                 return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
             if str(reaction) == "✅":
+                nsfw_role = ctx.guild.get_role(self.bot.config["guilds"][str(ctx.guild.id)]["nsfw_role"])
+                if not nsfw_role in ctx.author.roles:
+                    return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
                 sona[field] = True
             elif str(reaction) == "🚫":
                 sona[field] = False
@@ -174,10 +154,10 @@ class EditSona(commands.Cog, name="EditSona"):
         embed.set_image(url=sona["Picture"])
         embed.timestamp = ctx.message.created_at
         try:
-            message = await self.sona_edit_queue_channel.send(embed=embed)
+            message = await sona_edit_queue_channel.send(embed=embed)
         except:
             embed.set_image(url="https://media.discordapp.net/attachments/579350335059918858/587607748653350944/Seperate_1.gif")
-            message = await self.sona_edit_queue_channel.send(embed=embed)
+            message = await sona_edit_queue_channel.send(embed=embed)
 
         reactions = ["⬆", "⬇", "✅", "🚫"]
         for reaction in reactions:
@@ -185,17 +165,27 @@ class EditSona(commands.Cog, name="EditSona"):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        guild = self.bot.get_guild(self.bot.config["guild"])
+        guild = self.bot.get_guild(payload.guild_id)
         emoji = payload.emoji
-        channel = guild.get_channel(payload.channel_id)
+        try:
+            channel = guild.get_channel(payload.channel_id)
+        except:
+            return
         message = await channel.fetch_message(payload.message_id)
         user = guild.get_member(payload.user_id)
 
+        guild_config = self.bot.config["guilds"][str(guild.id)]
+        admin_role = guild.get_role(guild_config["admin_role"])
+        dev_role = guild.get_role(guild_config["dev_role"])
+        sona_edit_queue_channel = guild.get_channel(guild_config["sona_edit_queue_channel"])
+        sona_edit_approved_channel = guild.get_channel(guild_config["sona_edit_approved_channel"])
+        sona_edit_denied_channel = guild.get_channel(guild_config["sona_edit_denied_channel"])
+
         if user.bot:
             return
-        if not message.channel == self.sona_edit_queue_channel:
+        if not message.channel == sona_edit_queue_channel:
             return
-        if not self.admin_role in user.roles:
+        if not admin_role in user.roles and not dev_role in user.roles:
             return
 
         embed = message.embeds[0]
@@ -218,13 +208,13 @@ class EditSona(commands.Cog, name="EditSona"):
                 pass
             embed.color = discord.Color(0x00ce75)
             embed.set_footer(text=f"Approved by {user}.")
-            await self.sona_edit_approved_channel.send(embed=embed)
+            await sona_edit_approved_channel.send(embed=embed)
             return await message.delete()
 
         elif str(emoji) == "🚫":
-            question = await self.sona_edit_queue_channel.send(self.bot.translate("DENY_SONA", user=user))
+            question = await sona_edit_queue_channel.send(self.bot.translate("DENY_SONA", user=user))
             def check(reason):
-                return self.sona_edit_queue_channel == reason.channel and user == reason.author
+                return sona_edit_queue_channel == reason.channel and user == reason.author
             try:
                 reason = await self.bot.wait_for("message", check=check, timeout=300)
             except:
@@ -238,5 +228,5 @@ class EditSona(commands.Cog, name="EditSona"):
                 await member.send(self.bot.translate("DENIED_SONA", reason=reason.content))
             except:
                 pass
-            await self.sona_edit_denied_channel.send(embed=embed)
+            await sona_edit_denied_channel.send(embed=embed)
             return await message.delete()
