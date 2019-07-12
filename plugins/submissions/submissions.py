@@ -37,6 +37,8 @@ class Submissions(commands.Cog, name="Submissions"):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         guild = member.guild
+        if not self.bot.config["guilds"][str(guild.id)]["name"] == "central":
+            return
         gatekeeper_role = guild.get_role(self.bot.config["guilds"][str(guild.id)]["gatekeeper_role"])
         await member.add_roles(gatekeeper_role)
 
