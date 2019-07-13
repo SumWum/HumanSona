@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from util import Handlers
+import datetime
 
 
 class Submissions(commands.Cog, name="Submissions"):
@@ -80,11 +81,16 @@ class Submissions(commands.Cog, name="Submissions"):
         member = guild.get_member(int(embed.author.name.split(" | ")[1]))
 
         if str(emoji) == "✅":
+            print(datetime.datetime.now(), " > tick emoji")
             await member.add_roles(user_role)
+            print(datetime.datetime.now(), " > gave user role")
             await member.remove_roles(gatekeeper_role)
+            print(datetime.datetime.now(), " > removed gatekeeper role")
             try:
                 await member.send(self.bot.translate("APPROVED_APPLICATION"))
+                print(datetime.datetime.now(), " > sent dm")
             except:
+                print(datetime.datetime.now(), " > failed to send dm")
                 pass
             embed.color = discord.Color(0x00ce75)
             embed.set_footer(text=f"Approved by {user}.")
@@ -95,7 +101,9 @@ class Submissions(commands.Cog, name="Submissions"):
             ebed.description = self.bot.translate("WELCOME_DESC",
                 channel=selfrole_channel,
                 channel_2=rules_channel)
+            print(datetime.datetime.now(), " > made embed")
             await welcome_channel.send(self.bot.translate("WELCOME_MESSAGE", user=member, role_mention=welcome_role), embed=ebed)
+            print(datetime.datetime.now(), " > sent msg")
             return await message.delete()
 
         elif str(emoji) == "🚫":
