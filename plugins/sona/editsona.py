@@ -126,8 +126,8 @@ class EditSona(commands.Cog, name="EditSona"):
             except:
                 return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
             if str(reaction) == "✅":
-                nsfw_role = ctx.guild.get_role(self.bot.config["guilds"][str(ctx.guild.id)]["nsfw_role"])
-                if not nsfw_role in ctx.author.roles:
+                sfw_role = ctx.guild.get_role(self.bot.config["guilds"][str(ctx.guild.id)]["sfw_role"])
+                if sfw_role in ctx.author.roles:
                     return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
                 sona[field] = True
             elif str(reaction) == "🚫":
