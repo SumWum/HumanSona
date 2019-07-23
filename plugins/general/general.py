@@ -10,6 +10,7 @@ class General(commands.Cog, name="General"):
         self.bot = bot
         self.config = self.bot.config
 
+        """
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         member = after
@@ -22,7 +23,7 @@ class General(commands.Cog, name="General"):
             for role in nsfw_roles:
                 role = member.guild.get_role(role)
                 await member.remove_roles(role)
-
+    """
     @commands.command()
     async def ping(self, ctx):
         """Checks bot's ping."""
