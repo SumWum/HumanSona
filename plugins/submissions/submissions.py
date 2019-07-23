@@ -7,18 +7,19 @@ import datetime
 class Submissions(commands.Cog, name="Submissions"):
     def __init__(self, bot):
         self.bot = bot
+        self.config = self.bot.config
 
     @commands.Cog.listener()
     async def on_message(self, message):
         guild = message.guild
         if not guild:
             return
-        if not self.bot.config["guilds"][str(guild.id)]["name"] == "central":
+        if not self.config["guilds"][str(guild.id)]["name"] == "central":
             return
 
-        intro_channel = guild.get_channel(self.bot.config["guilds"][str(guild.id)]["intro_channel"])
-        admin_role = guild.get_role(self.bot.config["guilds"][str(guild.id)]["admin_role"])
-        queue_channel = guild.get_channel(self.bot.config["guilds"][str(guild.id)]["queue_channel"])
+        intro_channel = guild.get_channel(self.config["guilds"][str(guild.id)]["intro_channel"])
+        admin_role = guild.get_role(self.config["guilds"][str(guild.id)]["admin_role"])
+        queue_channel = guild.get_channel(self.config["guilds"][str(guild.id)]["queue_channel"])
 
         if message.channel == intro_channel:
             if admin_role in message.author.roles:
@@ -38,9 +39,9 @@ class Submissions(commands.Cog, name="Submissions"):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         guild = member.guild
-        if not self.bot.config["guilds"][str(guild.id)]["name"] == "central":
+        if not self.config["guilds"][str(guild.id)]["name"] == "central":
             return
-        gatekeeper_role = guild.get_role(self.bot.config["guilds"][str(guild.id)]["gatekeeper_role"])
+        gatekeeper_role = guild.get_role(self.config["guilds"][str(guild.id)]["gatekeeper_role"])
         await member.add_roles(gatekeeper_role)
 
     @commands.Cog.listener()
@@ -54,7 +55,7 @@ class Submissions(commands.Cog, name="Submissions"):
         message = await channel.fetch_message(payload.message_id)
         user = guild.get_member(payload.user_id)
 
-        guild_config = self.bot.config["guilds"][str(guild.id)]
+        guild_config = self.config["guilds"][str(guild.id)]
         if not guild_config["name"] == "central":
             return
         intro_channel = guild.get_channel(guild_config["intro_channel"])
@@ -78,7 +79,7 @@ class Submissions(commands.Cog, name="Submissions"):
             return
 
         embed = message.embeds[0]
-        member = guild.get_member(int(embed.author.name.split(" | ")[1]))
+        member = guild.get_member(int(embed.author.name.split(" | ")[-1]))
 
         if str(emoji) == "✅":
             print(datetime.datetime.now(), " > tick emoji")

@@ -53,6 +53,15 @@ class Bot(commands.AutoShardedBot):
         print("Starting...")
 
 
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"You're on cooldown! Please try again in {str(round(error.retry_after))} seconds.")
+        elif isinstance(error, commands.CommandNotFound):
+            pass
+        else:
+            print(error)
+
+
     async def on_ready(self):
         print("Starting...")
         self.remove_command("help")

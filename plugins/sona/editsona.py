@@ -6,6 +6,7 @@ from util import Handlers
 class EditSona(commands.Cog, name="EditSona"):
     def __init__(self, bot):
         self.bot = bot
+        self.config = self.bot.config
         self.special_fields = ["NSFW", "Picture"]
         self.fields = {"💬": "Name",
                        "⏰": "Age",
@@ -30,12 +31,13 @@ class EditSona(commands.Cog, name="EditSona"):
 
 
     @commands.command()
+    @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
     async def editsona(self, ctx):
-        sona_edit_queue_channel = ctx.guild.get_channel(self.bot.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
+        sona_edit_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         """Edits your sona."""
         if not ctx.guild:
-            return
-        data = Handlers.Mongo.read()
+            ctx.guild = self.bot.get_guild(402412995084288000)
+                    data = Handlers.Mongo.read()
         try:
             sona = data["sonas"][str(ctx.author.id)]
         except:
@@ -126,7 +128,7 @@ class EditSona(commands.Cog, name="EditSona"):
             except:
                 return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
             if str(reaction) == "✅":
-                sfw_role = ctx.guild.get_role(self.bot.config["guilds"][str(ctx.guild.id)]["sfw_role"])
+                sfw_role = ctx.guild.get_role(self.config["guilds"][str(ctx.guild.id)]["sfw_role"])
                 if sfw_role in ctx.author.roles:
                     return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
                 sona[field] = True
@@ -174,7 +176,7 @@ class EditSona(commands.Cog, name="EditSona"):
         message = await channel.fetch_message(payload.message_id)
         user = guild.get_member(payload.user_id)
 
-        guild_config = self.bot.config["guilds"][str(guild.id)]
+        guild_config = self.config["guilds"][str(guild.id)]
         admin_role = guild.get_role(guild_config["admin_role"])
         dev_role = guild.get_role(guild_config["dev_role"])
         sona_edit_queue_channel = guild.get_channel(guild_config["sona_edit_queue_channel"])
@@ -189,7 +191,7 @@ class EditSona(commands.Cog, name="EditSona"):
             return
 
         embed = message.embeds[0]
-        member = guild.get_member(int(embed.author.name.split(" | ")[1]))
+        member = guild.get_member(int(embed.author.name.split(" | ")[-1]))
         if str(emoji) == "✅":
             data = Handlers.Mongo.read()
             answers = {}

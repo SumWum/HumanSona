@@ -7,6 +7,7 @@ import json
 class Sona(commands.Cog, name="Sona"):
     def __init__(self, bot):
         self.bot = bot
+        self.config = self.bot.config
         self.questions = {"Name": "What is your fursona's name?",
                           "Gender": "What is your fursona's gender?",
                           "Age": "What is your fursona's age?",
@@ -19,6 +20,7 @@ class Sona(commands.Cog, name="Sona"):
 
 
     @commands.command()
+    @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
     async def sona(self, ctx, member: discord.Member=None):
         """Displays your sona.\nIf the sona is NSFW then the command must be executed in a NSFW channel"""
         data = Handlers.Mongo.read()
@@ -47,17 +49,18 @@ class Sona(commands.Cog, name="Sona"):
         embed.timestamp = ctx.message.created_at
 
         try:
-            message = await ctx.send(embed=embed)
+            message = await ctx.send(ctx.author.mention, embed=embed)
         except:
             embed.set_image(url="https://media.discordapp.net/attachments/579350335059918858/587607748653350944/Seperate_1.gif")
-            message = await ctx.send(embed=embed)
+            message = await ctx.send(ctx.author.mention, embed=embed)
 
 
     @commands.command()
+    @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
     async def setsona(self, ctx):
         """Creates a sona."""
         if not ctx.guild:
-            return
+            ctx.guild = self.bot.get_guild(402412995084288000)
         data = Handlers.Mongo.read()
         if str(ctx.author.id) in data["sonas"]:
             return await ctx.send(self.bot.translate("SONA_EXISTS"))
@@ -90,7 +93,7 @@ class Sona(commands.Cog, name="Sona"):
         except:
             return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
         if str(reaction) == "✅":
-            sfw_role = ctx.guild.get_role(self.bot.config["guilds"][str(ctx.guild.id)]["sfw_role"])
+            sfw_role = ctx.guild.get_role(self.config["guilds"][str(ctx.guild.id)]["sfw_role"])
             if sfw_role in ctx.author.roles:
                 return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
             answers[type] = True
@@ -138,7 +141,7 @@ class Sona(commands.Cog, name="Sona"):
             embed.add_field(name=question, value=answers[question])
         embed.set_image(url=answers["Picture"])
         embed.timestamp = ctx.message.created_at
-        sona_queue_channel = ctx.guild.get_channel(self.bot.config["guilds"][str(ctx.guild.id)]["sona_queue_channel"])
+        sona_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_queue_channel"])
         try:
             message = await sona_queue_channel.send(embed=embed)
         except:
@@ -161,7 +164,7 @@ class Sona(commands.Cog, name="Sona"):
         message = await channel.fetch_message(payload.message_id)
         user = guild.get_member(payload.user_id)
 
-        guild_config = self.bot.config["guilds"][str(guild.id)]
+        guild_config = self.config["guilds"][str(guild.id)]
         admin_role = guild.get_role(guild_config["admin_role"])
         dev_role = guild.get_role(guild_config["dev_role"])
         sona_queue_channel = guild.get_channel(guild_config["sona_queue_channel"])
@@ -176,7 +179,7 @@ class Sona(commands.Cog, name="Sona"):
             return
 
         embed = message.embeds[0]
-        member = guild.get_member(int(embed.author.name.split(" | ")[1]))
+        member = guild.get_member(int(embed.author.name.split(" | ")[-1]))
         print(member)
         if str(emoji) == "✅":
             data = Handlers.Mongo.read()
@@ -226,7 +229,7 @@ class Sona(commands.Cog, name="Sona"):
 
     @commands.command(hidden=True)
     async def _sona(self, ctx, member: discord.Member=None):
-        guild_config = self.bot.config["guilds"][str(ctx.guild.id)]
+        guild_config = self.config["guilds"][str(ctx.guild.id)]
         admin_role = ctx.guild.get_role(guild_config["admin_role"])
         dev_role = ctx.guild.get_role(guild_config["dev_role"])
         if (not admin_role in ctx.author.roles) and (not dev_role in ctx.author.roles):
