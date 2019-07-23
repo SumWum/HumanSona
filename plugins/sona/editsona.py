@@ -37,7 +37,7 @@ class EditSona(commands.Cog, name="EditSona"):
         """Edits your sona."""
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
-                    data = Handlers.Mongo.read()
+        data = Handlers.Mongo.read()
         try:
             sona = data["sonas"][str(ctx.author.id)]
         except:
