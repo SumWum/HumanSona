@@ -31,7 +31,6 @@ class EditSona(commands.Cog, name="EditSona"):
 
 
     @commands.command()
-    @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
     async def editsona(self, ctx):
         sona_edit_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         """Edits your sona."""

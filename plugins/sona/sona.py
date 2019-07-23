@@ -56,7 +56,6 @@ class Sona(commands.Cog, name="Sona"):
 
 
     @commands.command()
-    @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
     async def setsona(self, ctx):
         """Creates a sona."""
         if not ctx.guild:
