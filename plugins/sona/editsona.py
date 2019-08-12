@@ -165,6 +165,45 @@ class EditSona(commands.Cog, name="EditSona"):
         for reaction in reactions:
             await message.add_reaction(reaction)
 
+    @commands.command(aliases=["delsona"])
+    async def deletesona(self, ctx):
+        if not ctx.guild:
+            ctx.guild = self.bot.get_guild(402412995084288000)
+        data = Handlers.Mongo.read()
+        ctx.author = ctx.guild.get_member(ctx.author.id)
+        try:
+            sona = data["sonas"][str(ctx.author.id)]
+        except:
+            return await ctx.send(self.bot.translate("NO_SONA"))
+
+        question = "Are you sure?"
+        embed = discord.Embed(color=discord.Color(0x7289DA))
+        embed.description = question
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("✅")
+        await message.add_reaction("🚫")
+
+        def check2(reaction, user):
+            return ctx.channel == reaction.message.channel and ctx.author == user
+
+        try:
+            reaction, user = await self.bot.wait_for("reaction_add", check=check2, timeout=1800)
+        except:
+            return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
+        if str(reaction) == "✅":
+            pass
+        elif str(reaction) == "🚫":
+            return await ctx.send(self.bot.translate("EXIT"))
+        else:
+            return await ctx.send(self.bot.translate("INVALID_OPTION"))
+
+        Handlers.Mongo.remove_field("sonas", str(ctx.author.id))
+        embed = discord.Embed(color=discord.Color(0x7289DA))
+        embed.set_author(name=f"{ctx.author} ({str(ctx.author.id)})'s sona.", icon_url=ctx.author.avatar_url)
+        embed.description = "Successfully deleted the sona."
+        return await ctx.send(embed=embed)
+
+
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         guild = self.bot.get_guild(payload.guild_id)
