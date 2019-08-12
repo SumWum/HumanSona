@@ -25,7 +25,7 @@ class EditSona(commands.Cog, name="EditSona"):
                           "Species": "What is your fursona's species",
                           "Orientation": "What is your fursona's sexual orientation?",
                           "Height": "What is your fursona's height in inches (eg 66 inches)?",
-                          "Weight": "What is your fursona's weight in punds (eg 155lbs)?",
+                          "Weight": "What is your fursona's weight in pounds (eg 155lbs)?",
                           "Bio": "What is your fursona's bio, if you have one (otherwise say `None`)? You have 30 minutes to write this before it times out automatically.",
                           "Color": "What is your favourite color? (HEX only, example: #00FF7E)"}
 
@@ -37,6 +37,7 @@ class EditSona(commands.Cog, name="EditSona"):
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
         data = Handlers.Mongo.read()
+        ctx.author = ctx.guild.get_member(ctx.author.id)
         try:
             sona = data["sonas"][str(ctx.author.id)]
         except:
