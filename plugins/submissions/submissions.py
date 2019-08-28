@@ -28,7 +28,7 @@ class Submissions(commands.Cog, name="Submissions"):
             embed.set_author(name=f"{message.author} | {str(message.author.id)}", icon_url=message.author.avatar_url)
             embed.description = str(message.content)
             embed.timestamp = message.created_at
-            message2 = await queue_channel.send(embed=embed)
+            message2 = await queue_channel.send(message.author.mention, embed=embed)
 
             reactions = ["⬆", "⬇", "✅", "🚫"]
             for reaction in reactions:

@@ -177,7 +177,7 @@ class EditSona(commands.Cog, name="EditSona"):
             return await ctx.send(self.bot.translate("NO_SONA"))
 
         question = "Are you sure?"
-        embed = discord.Embed(color=discord.Color(0x7289DA))
+        embed = discord.Embed(color=discord.Color(0x6666ff))
         embed.description = question
         message = await ctx.send(embed=embed)
         await message.add_reaction("✅")
