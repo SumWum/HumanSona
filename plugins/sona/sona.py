@@ -143,10 +143,10 @@ class Sona(commands.Cog, name="Sona"):
         embed.timestamp = ctx.message.created_at
         sona_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_queue_channel"])
         try:
-            message = await sona_queue_channel.send(embed=embed)
+            message = await sona_queue_channel.send(ctx.author.mention, embed=embed)
         except:
             embed.set_image(url="https://media.discordapp.net/attachments/579350335059918858/587607748653350944/Seperate_1.gif")
-            message = await sona_queue_channel.send(embed=embed)
+            message = await sona_queue_channel.send(ctx.author.mention, embed=embed)
 
         reactions = ["⬆", "⬇", "✅", "🚫"]
         for reaction in reactions:

@@ -3,7 +3,6 @@ from discord.ext import commands
 from util import Handlers
 import datetime
 
-
 class Submissions(commands.Cog, name="Submissions"):
     def __init__(self, bot):
         self.bot = bot
