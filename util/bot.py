@@ -61,10 +61,10 @@ class Bot(commands.AutoShardedBot):
         else:
             print(error)
 
-
     async def on_ready(self):
-        print("Starting...")
+        print("Connected!")
         self.remove_command("help")
+        self.load_extension("jishaku")
         await self.load_plugins()
         await self.update_activity()
         print(f"Logged in as {self.user} ({self.user.id})")
