@@ -242,7 +242,7 @@ class EditSona(commands.Cog, name="EditSona"):
                 answers["NSFW"] = False
             data["sonas"][str(member.id)] = answers
             Handlers.Mongo.save(data)
-            print(answers)
+            #print(answers)
             try:
                 await member.send(self.bot.translate("APPROVED_SONA"))
             except:

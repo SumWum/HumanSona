@@ -13,7 +13,7 @@ def get_pre(bot, message):
     return l
 
 print("Starting...")
-bot = Bot(command_prefix=get_pre, owner_ids={166630166825664512, 194861788926443520, 127972772365205505})
+bot = Bot(command_prefix=get_pre, owners=[166630166825664512, 194861788926443520, 127972772365205505])
 
 if __name__ == '__main__':
     bot.run(token)

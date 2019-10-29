@@ -180,7 +180,7 @@ class Sona(commands.Cog, name="Sona"):
 
         embed = message.embeds[0]
         member = guild.get_member(int(embed.author.name.split(" | ")[-1]))
-        print(member)
+        #print(member)
         if str(emoji) == "✅":
             data = Handlers.Mongo.read()
             answers = {}
@@ -196,7 +196,7 @@ class Sona(commands.Cog, name="Sona"):
                 answers["Color"] == "#00FF7E"
             data["sonas"][str(member.id)] = answers
             Handlers.Mongo.save(data)
-            print(answers)
+            #print(answers)
             try:
                 await member.send(self.bot.translate("APPROVED_SONA"))
             except:
