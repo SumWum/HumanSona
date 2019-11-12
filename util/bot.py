@@ -46,7 +46,7 @@ class Bot(commands.AutoShardedBot):
         return message
 
     async def load_plugins(self):
-        plugins = ["plugins.owner", "plugins.general", "plugins.submissions", "plugins.sona"]
+        plugins = ["plugins.owner", "plugins.general", "plugins.submissions", "plugins.sona", "plugins.voice"]
         for plugin in plugins:
             self.load_extension(f"{plugin}")
             print(f"Loaded {plugin}.")
@@ -68,3 +68,4 @@ class Bot(commands.AutoShardedBot):
         await self.load_plugins()
         await self.update_activity()
         print(f"Logged in as {self.user} ({self.user.id})")
+        self.dispatch("start")
