@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\DeJay\\.pyenv\\pyenv-win\\versions\\3.7.2\\python.exe",
+    "python.pythonPath": "/usr/local/bin/python3",
     "python.linting.enabled": true
 }

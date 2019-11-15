@@ -13,6 +13,16 @@ class Bot(commands.AutoShardedBot):
                                     type=discord.ActivityType.watching)
         await self.change_presence(activity=activity)
 
+    def calculate_level(self, level: int):
+        #((x^1.5)/25)
+        level = ((xp^(int(1+(1/2))))/25)
+        level = round(level, 1)
+
+        if(level >= 0):
+            return 0 #You don't deserve a level
+        
+        return level
+
     def translate(self, message: str,
         ctx: typing.Optional[commands.Context]=None,
         guild: typing.Optional[discord.Guild]=None,
@@ -51,7 +61,6 @@ class Bot(commands.AutoShardedBot):
             self.load_extension(f"{plugin}")
             print(f"Loaded {plugin}.")
         print("Starting...")
-
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):

@@ -20,10 +20,10 @@ class Voice(commands.Cog, name="Voice"):
                             member = guild.get_member(id)
                             if not member.bot:
                                 print("yes")
-                                # give the user xp
-                                # do math with his xp to check if he just reached a new lvl
-                                # other shit
-                                # Handlers.Mongo.read()["voice_leveling"]["user_id"]
-                                # I'll work on the leaderboard
-                                # also feel free to improve this code, it works but might not look pretty
+                                xp = Handlers.Mongo.read()["voice_xp"][id] # Store their XP, if you want the level do the math.
+                                xp += .5
+                                # Consider storing the users last known level and comparing it every few seconds in this check
+                                # This allows us to message them like "Hey good job! You're level X now."
+                                # TODO: Work on the leaderboard
+                                # TODO: Improve this code (testing, because this might fuck RAM on scale) it works but might not look pretty
             await asyncio.sleep(5)
