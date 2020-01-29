@@ -1,12 +1,11 @@
 import discord
 from discord.ext import commands
-from util import Handlers
+from util.mongo import Mongo
 import asyncio
 
 class Voice(commands.Cog, name="Voice"):
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.bot.config
 
     @commands.Cog.listener()
     async def on_start(self):
@@ -20,7 +19,7 @@ class Voice(commands.Cog, name="Voice"):
                             member = guild.get_member(id)
                             if not member.bot:
                                 print("yes")
-                                xp = Handlers.Mongo.read()["voice_xp"][id] # Store their XP, if you want the level do the math.
+                                xp = mongo.read()["voice_xp"][id] # Store their XP, if you want the level do the math.
                                 xp += .5
                                 # Consider storing the users last known level and comparing it every few seconds in this check
                                 # This allows us to message them like "Hey good job! You're level X now."

@@ -1,5 +1,5 @@
 from .bot import Bot
-from .handlers import Handlers
+from .mongo import Mongo
 
 async def setup(bot):
     await bot.add_cog(Util(bot))

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import typing
-from util.handlers import Handlers
+from util.mongo import Mongo
 
 class Bot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):

@@ -9,23 +9,26 @@ import discord
 import yaml
 from discord.ext.commands import AutoShardedBot
 
-from Checks.bot_checks import can_external_react, can_send, can_react, can_embed
-from Formats.formats import avatar_check
+from checks.bot_checks import can_external_react, can_send, can_react, can_embed
+from formats.formats import avatar_check
 
 logger = logging.getLogger()
 
+config = None
+with open("config.json", "r") as bot_config:
+    config = yaml.safe_load(bot_config)
 
 def setup_logger():
-    with open("Config/logging.yml", "r") as log_config:
-        config = yaml.safe_load(log_config)
+    with open("config/logging.yml", "r") as log_config:
+        logconfig = yaml.safe_load(log_config)
 
     coloredlogs.install(
         level="INFO",
         logger=logger,
-        fmt=config["formats"]["console"],
-        datefmt=config["formats"]["datetime"],
-        level_styles=config["levels"],
-        field_styles=config["fields"],
+        fmt=logconfig["formats"]["console"],
+        datefmt=logconfig["formats"]["datetime"],
+        level_styles=logconfig["levels"],
+        field_styles=logconfig["fields"],
     )
 
     return logger
@@ -37,40 +40,23 @@ async def run():
     discord_log = logging.getLogger("discord")
     discord_log.setLevel(logging.INFO)
     description = "........"
-    bot = Bot(
-        description=description
-    )
+    bot = Bot()
+
     if __name__ == "__main__":
-        commands = 0
-        for extension in os.listdir("Commands"):
-            if extension.endswith(".py"):
-                try:
-                    extension = "Commands." + extension[:-3]
-                    bot.load_extension(extension)
-                    commands += 1
-                except Exception as e:
-                    log.error(
-                        f"Failed to load cog {extension}\n"
-                        f"Exception: {e}\n"
-                        f"{e.__cause__}"
-                    )
-        log.info(f"[Commands Manager] - Loaded {commands} command cogs")
-        handlers = 0
-        for extension in os.listdir("Handlers"):
-            if extension.endswith(".py"):
-                try:
-                    extension = "Handlers." + extension[:-3]
-                    bot.load_extension(extension)
-                    handlers += 1
-                except Exception as e:
-                    log.error(
-                        f"Failed to load cog {extension}\n"
-                        f"Exception: {e}\n"
-                        f"{e.__cause__}"
-                    )
-        log.info(f"[Handler Manager] - Loaded {handlers} Handlers")
+        cogs = 0
+        for extension in [f.replace('.py', '') for f in os.listdir("plugins") if os.path.isfile(os.path.join("plugins", f))]:
+            try:
+                bot.load_extension(cogs_dir + "." + extension)
+                cogs += 1
+            except (discord.ClientException, ModuleNotFoundError, Exception):
+                log.error(
+                    f"Failed to load cog {extension}\n"
+                    f"Exception: {e}\n"
+                    f"{e.__cause__}"
+                )
+        log.info(f"[Cog Manager] - Loaded {cogs} command cogs")
     try:
-        await bot.start(os.environ["SHERI_PROD_KEY"])
+        await bot.start(config["token"])
     except KeyboardInterrupt:
         await bot.logout()
 
@@ -78,7 +64,6 @@ async def run():
 class Bot(AutoShardedBot):
     def __init__(self, **kwargs):
         super().__init__(
-            description=kwargs.pop("description"),
             command_prefix=".",
             status=discord.Status.online,
             case_insensitive=True,
@@ -93,48 +78,25 @@ class Bot(AutoShardedBot):
         discord_log = logging.getLogger("discord")
         discord_log.setLevel(logging.INFO)
         self.log = log
+        self.config = config
         self.log.info(
             f"[Shard Manager] - Configuration Received. - Launching {self.shard_count} Shards"
         )
 
     async def on_ready(self):
-        self.log.info(
-            f"########################################################################\n"
-            f"- I have successfully connected to discord!\n"
-            f"- Bot account: {self.user}\n"
-            f"- Guilds: {len(self.guilds):,}\n"
-            f"- Users: {len([member for member in self.users if not member.bot]):,}\n"
-            f"- Bots: {len([bot for bot in self.users if bot.bot]):,}\n"
-            f"- Discord.py Version: {discord.__version__}\n"
-            f"- Python Version: {platform.python_version()}\n"
-            f"########################################################################"
-        )
-        self.log.info("I am now listening for commands/events.")
+        self.log.info("[Bot] Connected to Discord")
+        await self.update_activity()
+        self.log.info("[Bot] Ready. Now listening for commands/events.")
 
     async def on_shard_ready(self, shard_id):
         self.log.info(
-            f"[Shard Primer] - Shard {shard_id} has been primed and ready to be fucked by the public."
+            f"[Shard Primer] - Shard {shard_id} ready."
         )
 
-    @staticmethod
-    def error_embed(error):
-        embed = discord.Embed(
-            color=0xDC3545,
-            description="<a:bug:474000184901369856> "
-                        "Error in processing command! <a:bug:474000184901369856>\n"
-                        f"{error}",
-        ).set_image(url="https://sheri.bot/media/command_error.png")
-        embed.set_author(
-            icon_url="http://myovchev.github.io/sentry-slack/images/logo32.png",
-            name="Error, Logged in sentry",
-            url="https://sentry.ourmainfra.me/",
-        )
-
-        embed.set_footer(
-            text="Sheri Blossom, Version: v4.2",
-            icon_url="https://cdn.discordapp.com/emojis/457367016823848970.png?v=1",
-        )
-        return embed
+    async def update_activity(self):
+        activity = discord.Activity(name=f"over Furry Central",
+                                    type=discord.ActivityType.watching)
+        await self.change_presence(activity=activity)
 
     @staticmethod
     def format_retry_after(retry_after):
@@ -158,30 +120,22 @@ class Bot(AutoShardedBot):
         if isinstance(exception, discord.ext.commands.MissingRequiredArgument):
             ctx.command.reset_cooldown(ctx)
             if can_external_react(ctx):
-                embed = discord.Embed(color=self.color, title="<:error:451845273124208652> Missing Argument",
+                embed = discord.Embed(color=self.color, title="❌ Missing Argument",
                                       description=
                                       f"{exception}\n"
-                                      f"Usage: ``fur{ctx.command.name} {ctx.command.signature}``")
+                                      f"Usage: ``.{ctx.command.name} {ctx.command.signature}``")
                 embed.set_thumbnail(url=avatar_check(self.user))
-                embed.set_author(name="Command Help", icon_url=avatar_check(self.user),
-                                 url="https://sheri.bot/commands")
-                embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457367016823848970.png?v=1",
-                                 text="Powered by furhost.net")
                 if can_send(ctx):
                     return await ctx.send(embed=embed)
                 else:
                     if can_react(ctx):
-                        return await ctx.message.add_reaction("<:error:451845273124208652>")
+                        return await ctx.message.add_reaction("❌")
             else:
                 embed = discord.Embed(color=self.color, title="❌ Missing Argument",
                                       description=
                                       f"{exception}\n"
-                                      f"Usage: fur{ctx.command.name} {ctx.command.signature}")
+                                      f"Usage: ``.{ctx.command.name} {ctx.command.signature}``")
                 embed.set_thumbnail(url=avatar_check(self.user))
-                embed.set_author(name="Command Help", icon_url=avatar_check(self.user),
-                                 url="https://sheri.bot/commands")
-                embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457367016823848970.png?v=1",
-                                 text="Powered by furhost.net")
                 if can_send(ctx):
                     return await ctx.send(embed=embed)
                 else:
@@ -191,30 +145,22 @@ class Bot(AutoShardedBot):
         elif isinstance(exception, discord.ext.commands.BadArgument):
             ctx.command.reset_cooldown(ctx)
             if can_external_react(ctx):
-                embed = discord.Embed(color=self.color, title="<:error:451845273124208652> Missing Argument",
+                embed = discord.Embed(color=self.color, title="❌ Missing Argument",
                                       description=
                                       f"{exception}\n"
-                                      f"Usage: ``fur{ctx.command.name} {ctx.command.signature}``")
+                                      f"Usage: ``.{ctx.command.name} {ctx.command.signature}``")
                 embed.set_thumbnail(url=avatar_check(self.user))
-                embed.set_author(name="Command Help", icon_url=avatar_check(self.user),
-                                 url="https://sheri.bot/commands")
-                embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457367016823848970.png?v=1",
-                                 text="Powered by furhost.net")
                 if can_send(ctx) and can_embed(ctx):
                     return await ctx.send(embed=embed)
                 else:
                     if can_react(ctx):
-                        return await ctx.message.add_reaction("<:error:451845273124208652>")
+                        return await ctx.message.add_reaction("❌")
             else:
-                embed = discord.Embed(color=self.color, title="<:error:451845273124208652> Missing Argument",
+                embed = discord.Embed(color=self.color, title="❌ Missing Argument",
                                       description=
                                       f"{exception}\n"
-                                      f"Usage: ``fur{ctx.command.name} {ctx.command.signature}``")
+                                      f"Usage: ``.{ctx.command.name} {ctx.command.signature}``")
                 embed.set_thumbnail(url=avatar_check(self.user))
-                embed.set_author(name="Command Help", icon_url=avatar_check(self.user),
-                                 url="https://sheri.bot/commands")
-                embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457367016823848970.png?v=1",
-                                 text="Powered by furhost.net")
                 if can_send(ctx) and can_embed(ctx):
                     return await ctx.send(embed=embed)
                 else:
@@ -231,26 +177,22 @@ class Bot(AutoShardedBot):
         elif isinstance(exception, discord.Forbidden):
             if can_send(ctx):
                 return await ctx.send(
-                    "Permission error has been detected. This is not my fault but your fault.\n"
-                    "In order for me to work as intended, I require the following permissions\n"
+                    "Permission error detected. Please notify an admin.\n"
                     "```fix\n"
                     "MANAGE_MESSAGES, MANAGE_ROLES, KICK_MEMBERS, BAN_MEMBERS, CHANGE_NICKNAME, "
                     "MANAGE_NICKNAMES, READ TEXT_CHANNELS & SEE VOICE CHANNELS,SEND MESSAGES, "
-                    "EMBED_LINKS, ATTACH_FILES, USE_EXTERNAL_EMOJIS, ADD_REACTIONS, CONNECT, SPEAK```\n"
-                    "If you are still receiving this message, Please make sure that my top role is above the roles you want me to configure."
+                    "EMBED_LINKS, ATTACH_FILES, USE_EXTERNAL_EMOJIS, ADD_REACTIONS, CONNECT, SPEAK```"
                 )
             else:
                 try:
                     if can_react(ctx):
                         await ctx.message.add_reaction("❌")
                     return await ctx.author.send(
-                        "Permission error has been detected. This is not my fault but your servers fault.\n"
-                        "In order for me to work as intended, I require the following permissions\n"
+                        "Permission error detected. Please notify an admin.\n"
                         "```fix\n"
                         "MANAGE_MESSAGES, MANAGE_ROLES, KICK_MEMBERS, BAN_MEMBERS, CHANGE_NICKNAME, "
                         "MANAGE_NICKNAMES, READ TEXT_CHANNELS & SEE VOICE CHANNELS,SEND MESSAGES, "
-                        "EMBED_LINKS, ATTACH_FILES, USE_EXTERNAL_EMOJIS, ADD_REACTIONS, CONNECT, SPEAK```\n"
-                        "If you are still receiving this message, Please make sure that my top role is above the roles you want me to configure."
+                        "EMBED_LINKS, ATTACH_FILES, USE_EXTERNAL_EMOJIS, ADD_REACTIONS, CONNECT, SPEAK```"
                     )
                 except discord.Forbidden:
                     return
@@ -268,40 +210,23 @@ class Bot(AutoShardedBot):
                 fmt = f"{minutes} minutes and {seconds} seconds"
             else:
                 fmt = f"{seconds} seconds"
-            return await ctx.send("You can try again in " + fmt)
+            return await ctx.send("Please try again in " + fmt)
 
         elif isinstance(exception, discord.ext.commands.NoPrivateMessage):
             ctx.command.reset_cooldown(ctx)
             return await ctx.send(
-                "This command is only allowed in discord servers, sorry!"
+                "This command is not allowed in messages, sorry!"
             )
         else:
             ctx.command.reset_cooldown(ctx)
             cmd = ctx.command.name
             if can_send(ctx):
-                if can_external_react(ctx):
-                    await ctx.send(
-                        f"<a:error:474000184263573544> | **UNEXPECTED ERROR IN ``{cmd}``** | <a:error:474000184263573544>\n"
-                        "I have logged the error and have alerted the team. If this error continues to persist, please reach out to us!\n"
-                        "**```fix\n"
-                        f"{exception}```**")
-                else:
-                    await ctx.send(
-                        f"❌ I have encountered an error with ``{cmd}``. I have dispached my developers to fix the issue\n"
-                        "If this error continues to persist, please reach out to my team!\n"
-                        "**```fix\n"
-                        f"{exception}```**")
+                await ctx.send("Whoops! That shouldn't have happened. I've notified the Developers to this issue.") #TODO: Include Sentry ID
             else:
                 if can_react(ctx):
-                    if can_external_react(ctx):
-                        await ctx.message.add_reaction(":error:451845273124208652")
-                    else:
-                        await ctx.message.add_reaction("❌")
+                    await ctx.message.add_reaction("❌")
                 try:
-                    await ctx.author.send("An error has occurred.\n"
-                                          f"I am unable to send messages in {ctx.channel.mention}, But I wanted to inform"
-                                          f" you that I have notified my team with the "
-                                          f"issue and they will work on resolving it as soon as possible.")
+                    await ctx.author.send("Whoops! That shouldn't have happened. I've notified the Developers to this issue.") #TODO: Include Sentry ID
                 except discord.Forbidden:
                     return
 

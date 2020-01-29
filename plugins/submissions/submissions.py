@@ -1,12 +1,11 @@
 import discord
 from discord.ext import commands
-from util import Handlers
+from util.mongo import Mongo
 import datetime
 
 class Submissions(commands.Cog, name="Submissions"):
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.bot.config
 
     @commands.Cog.listener()
     async def on_message(self, message):

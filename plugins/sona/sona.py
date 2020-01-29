@@ -1,13 +1,12 @@
 import discord
 from discord.ext import commands
-from util import Handlers
+from util.mongo import Mongo
 import pprint
 import json
 
 class Sona(commands.Cog, name="Sona"):
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.bot.config
         self.questions = {"Name": "What is your fursona's name?",
                           "Gender": "What is your fursona's gender?",
                           "Age": "What is your fursona's age?",
@@ -23,7 +22,7 @@ class Sona(commands.Cog, name="Sona"):
     @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
     async def sona(self, ctx, member: discord.Member=None):
         """Displays your sona.\nIf the sona is NSFW then the command must be executed in a NSFW channel"""
-        data = Handlers.Mongo.read()
+        data = mongo.read()
         if member == None:
             member = ctx.author
         try:
@@ -60,7 +59,7 @@ class Sona(commands.Cog, name="Sona"):
         """Creates a sona."""
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
-        data = Handlers.Mongo.read()
+        data = mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         if str(ctx.author.id) in data["sonas"]:
             return await ctx.send(self.bot.translate("SONA_EXISTS"))
@@ -180,9 +179,8 @@ class Sona(commands.Cog, name="Sona"):
 
         embed = message.embeds[0]
         member = guild.get_member(int(embed.author.name.split(" | ")[-1]))
-        #print(member)
         if str(emoji) == "✅":
-            data = Handlers.Mongo.read()
+            data = mongo.read()
             answers = {}
             for field in embed.fields:
                 answers[str(field.name)] = str(field.value)
@@ -195,8 +193,7 @@ class Sona(commands.Cog, name="Sona"):
             if answers["Color"] == "None":
                 answers["Color"] == "#00FF7E"
             data["sonas"][str(member.id)] = answers
-            Handlers.Mongo.save(data)
-            #print(answers)
+            mongo.save(data)
             try:
                 await member.send(self.bot.translate("APPROVED_SONA"))
             except:
@@ -237,7 +234,7 @@ class Sona(commands.Cog, name="Sona"):
 
         if member == None:
             member = ctx.author
-        data = Handlers.Mongo.read()
+        data = mongo.read()
         if member == None:
             member = ctx.author
         try:
@@ -329,7 +326,7 @@ class Sona(commands.Cog, name="Sona"):
             if newsona["Bio"] == "None":
                 newsona["Bio"] = None
             data["sonas"][str(member.id)] = newsona
-            Handlers.Mongo.save(data)
+            mongo.save(data)
             embed = discord.Embed(color=ctx.author.color)
             embed.set_author(name=f"{member} ({str(member.id)})'s sona.", icon_url=ctx.author.avatar_url)
             embed.description = "Successfully modified the sona."
@@ -354,7 +351,7 @@ class Sona(commands.Cog, name="Sona"):
             else:
                 return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
-            Handlers.Mongo.remove_field("sonas", str(member.id))
+            mongo.remove_field("sonas", str(member.id))
             embed = discord.Embed(color=ctx.author.color)
             embed.set_author(name=f"{member} ({str(member.id)})'s sona.", icon_url=ctx.author.avatar_url)
             embed.description = "Successfully deleted the sona."

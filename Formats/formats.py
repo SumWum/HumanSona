@@ -4,22 +4,16 @@ import colorthief
 import emoji
 import discord
 
-# import rethinkdb as r
 from discord.ext import commands
 
-# from utils.checks.bot_checks import can_send, can_embed
-
-
 # https://www.webpagefx.com/tools/emoji-cheat-sheet/
-from Checks.bot_checks import can_send, can_embed
+from checks.bot_checks import can_send, can_embed
 
 
 def get_icon():
     file = open("Logo/banner.txt", encoding="utf8")
     return file.read()
 
-
-# What
 
 bad_argument_text = (
     "Uh oh, I can't find that role in here, are you sure you spelled it right?\n"
@@ -96,16 +90,6 @@ async def get_dominant_color(bot, url):
         except:
             return discord.Color.default()
     return discord.Color.from_rgb(*color)
-
-
-async def nopingpatch(ha):
-    troll = (
-        ha.replace("@everyone", "pinger")
-        .replace("@here", "pinger")
-        .replace("everyone", "pinger")
-        .replace("here", "pinger")
-    )
-    return troll
 
 
 class RoleID(commands.Converter):

@@ -1,4 +1,4 @@
-from util import Handlers
+from util.mongo import Mongo
 
-Handlers.Mongo.create_document("sonas")
-Handlers.Mongo.create_document("xp")
+mongo.create_document("sonas")
+mongo.create_document("xp")

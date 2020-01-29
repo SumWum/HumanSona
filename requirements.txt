@@ -2,3 +2,7 @@ discord.py
 pymongo
 disputils
 jishaku
+coloredlogs
+yaml
+colorthief
+emoji

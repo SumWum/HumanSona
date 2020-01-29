@@ -1,12 +1,10 @@
 import discord
 from discord.ext import commands
-from util import Handlers
-
+from util.mongo import Mongo
 
 class EditSona(commands.Cog, name="EditSona"):
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.bot.config
         self.special_fields = ["NSFW", "Picture"]
         self.fields = {"💬": "Name",
                        "⏰": "Age",
@@ -36,7 +34,7 @@ class EditSona(commands.Cog, name="EditSona"):
         """Edits your sona."""
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
-        data = Handlers.Mongo.read()
+        data = mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         try:
             sona = data["sonas"][str(ctx.author.id)]
@@ -169,7 +167,7 @@ class EditSona(commands.Cog, name="EditSona"):
     async def deletesona(self, ctx):
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
-        data = Handlers.Mongo.read()
+        data = mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         try:
             sona = data["sonas"][str(ctx.author.id)]
@@ -197,7 +195,7 @@ class EditSona(commands.Cog, name="EditSona"):
         else:
             return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
-        Handlers.Mongo.remove_field("sonas", str(ctx.author.id))
+        mongo.remove_field("sonas", str(ctx.author.id))
         embed = discord.Embed(color=discord.Color(0x7289DA))
         embed.set_author(name=f"{ctx.author} ({str(ctx.author.id)})'s sona.", icon_url=ctx.author.avatar_url)
         embed.description = "Successfully deleted the sona."
@@ -232,7 +230,7 @@ class EditSona(commands.Cog, name="EditSona"):
         embed = message.embeds[0]
         member = guild.get_member(int(embed.author.name.split(" | ")[-1]))
         if str(emoji) == "✅":
-            data = Handlers.Mongo.read()
+            data = mongo.read()
             answers = {}
             for field in embed.fields:
                 answers[str(field.name)] = str(field.value)
@@ -241,8 +239,7 @@ class EditSona(commands.Cog, name="EditSona"):
             else:
                 answers["NSFW"] = False
             data["sonas"][str(member.id)] = answers
-            Handlers.Mongo.save(data)
-            #print(answers)
+            mongo.save(data)
             try:
                 await member.send(self.bot.translate("APPROVED_SONA"))
             except:
