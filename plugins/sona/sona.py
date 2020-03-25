@@ -129,6 +129,9 @@ class Sona(commands.Cog, name="Sona"):
         else:
             answers[type] = answer.attachments[0].url
 
+        if len(answers["Bio"]) > 1024:
+            return await ctx.send("At this time we cannot accept a bio longer than 1024 characters due to a Discord limit. I've cancelled your submission to allow you to change it.")
+
         await ctx.send(self.bot.translate("SUBMIT_SUCCESS"))
 
         try:
