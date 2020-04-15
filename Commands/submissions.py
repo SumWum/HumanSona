@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-from util.mongo import Mongo
-import datetime
+
 
 class Submissions(commands.Cog, name="Submissions"):
     def __init__(self, bot):

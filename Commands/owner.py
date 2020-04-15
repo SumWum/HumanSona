@@ -1,16 +1,8 @@
-from discord.ext import commands
-import asyncio
-import traceback
-import discord
-import inspect
-import textwrap
-from contextlib import redirect_stdout
-import io
 import aiohttp
+from discord.ext import commands
+
 
 # to expose to the eval command
-import datetime
-from collections import Counter
 
 class Owner(commands.Cog, name="Owner"):
     """Owner-only commands that make the bot dynamic."""

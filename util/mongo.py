@@ -1,7 +1,3 @@
-import json
-import os
-import discord
-import asyncio
 import pymongo
 
 client = pymongo.MongoClient("mongodb://localhost:27000/")
@@ -16,7 +12,7 @@ class Mongo:
         return data
     
     def create_document(name: str):
-        collection.insert_one({"name": name}   
+        collection.insert_one({"name": name})
      
     def save(data):
         for document in data:

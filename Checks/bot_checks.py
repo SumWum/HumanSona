@@ -7,6 +7,7 @@ check_messages = {
              "Please consider donating to receive this.",
 }
 
+
 async def send_message(ctx, embed: discord.Embed = False, message: str = False, file: discord.File = False,
                        delete: int = False):
     if isinstance(ctx.channel, discord.TextChannel):
@@ -14,7 +15,8 @@ async def send_message(ctx, embed: discord.Embed = False, message: str = False, 
             if embed and file:
                 if can_embed(ctx) and can_upload(ctx):
                     return await ctx.send(embed=embed, file=file)
-                return await ctx.send("Unable to send this message because I lack permission to embed links and attach files")
+                return await ctx.send(
+                    "Unable to send this message because I lack permission to embed links and attach files")
             elif message and file:
                 if can_upload(ctx):
                     return await ctx.send(content=message, file=file)
@@ -76,6 +78,7 @@ def can_manage_user(
         elif guild.me.top_role > user.top_role:
             return True
 
+
 def can_send(
         ctx: commands.Context = None,
         guild: discord.Guild = None,
@@ -89,6 +92,7 @@ def can_send(
         return ctx.guild.me.permissions_in(channel).send_messages
     if guild and channel:
         return guild.me.permissions_in(channel).send_messages
+
 
 def can_react(
         ctx: commands.Context = None,
@@ -104,6 +108,7 @@ def can_react(
     if guild and channel:
         return guild.me.permissions_in(channel).add_reactions
 
+
 def can_embed(
         ctx: commands.Context = None,
         guild: discord.Guild = None,
@@ -117,6 +122,7 @@ def can_embed(
         return ctx.guild.me.permissions_in(channel).embed_links
     if guild and channel:
         return guild.me.permissions_in(channel).embed_links
+
 
 def can_manage_channel(
         ctx: commands.Context = None,
@@ -132,6 +138,7 @@ def can_manage_channel(
     if guild and channel:
         return guild.me.permissions_in(channel).manage_channels
 
+
 def can_external_react(
         ctx: commands.Context = None,
         guild: discord.Guild = None,
@@ -146,6 +153,7 @@ def can_external_react(
     if guild and channel:
         return guild.me.permissions_in(channel).external_emojis
 
+
 def can_delete(
         ctx: commands.Context = None,
         guild: discord.Guild = None,
@@ -158,6 +166,7 @@ def can_delete(
         return ctx.guild.me.permissions_in(channel).manage_messages
     if guild and channel:
         return guild.me.permissions_in(channel).manage_messages
+
 
 def can_kick(
         ctx: commands.Context = None,
@@ -172,6 +181,7 @@ def can_kick(
     if guild and channel:
         return guild.me.permissions_in(channel).kick_members
 
+
 def can_create_webhook(
         ctx: commands.Context = None,
         guild: discord.Guild = None,
@@ -185,12 +195,14 @@ def can_create_webhook(
     if guild and channel:
         return guild.me.permissions_in(channel).manage_webhooks
 
+
 def can_upload(ctx: commands.Context, channel: discord.TextChannel = None):
     if not channel:
         channel = ctx.channel
     if not ctx.guild:
         return False
     return ctx.guild.me.permissions_in(channel).attach_files
+
 
 def can_edit_role(ctx: commands.Context, role: discord.Role):
     if not ctx.guild:

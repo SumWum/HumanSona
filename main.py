@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-import platform
 from datetime import timedelta
 
 import coloredlogs
@@ -9,14 +8,15 @@ import discord
 import yaml
 from discord.ext.commands import AutoShardedBot
 
-from checks.bot_checks import can_external_react, can_send, can_react, can_embed
-from formats.formats import avatar_check
+from Checks.bot_checks import can_external_react, can_send, can_react, can_embed
+from Formats.formats import avatar_check
 
 logger = logging.getLogger()
 
 config = None
 with open("config.json", "r") as bot_config:
     config = yaml.safe_load(bot_config)
+
 
 def setup_logger():
     with open("config/logging.yml", "r") as log_config:
@@ -44,21 +44,26 @@ async def run():
 
     if __name__ == "__main__":
         cogs = 0
-        for extension in [f.replace('.py', '') for f in os.listdir("plugins") if os.path.isfile(os.path.join("plugins", f))]:
-            try:
-                bot.load_extension(cogs_dir + "." + extension)
-                cogs += 1
-            except (discord.ClientException, ModuleNotFoundError, Exception):
-                log.error(
-                    f"Failed to load cog {extension}\n"
-                    f"Exception: {e}\n"
-                    f"{e.__cause__}"
-                )
-        log.info(f"[Cog Manager] - Loaded {cogs} command cogs")
-    try:
-        await bot.start(config["token"])
-    except KeyboardInterrupt:
-        await bot.logout()
+        commands = 0
+        for extension in os.listdir("Commands"):
+            if extension.endswith(".py"):
+                try:
+                    extension = "Commands." + extension[:-3]
+                    bot.load_extension(extension)
+                    commands += 1
+                except Exception as e:
+                    log.error(
+                        f"Failed to load cog {extension}\n"
+                        f"Exception: {e}\n"
+                        f"{e.__cause__}"
+                    )
+                    # sentry.capture_exception(e)
+        log.info(f"[Commands Manager] - Loaded {commands} command cogs")
+
+        try:
+            await bot.start(config["token"])
+        except KeyboardInterrupt:
+            await bot.logout()
 
 
 class Bot(AutoShardedBot):
@@ -67,7 +72,6 @@ class Bot(AutoShardedBot):
             command_prefix=".",
             status=discord.Status.online,
             case_insensitive=True,
-            shard_count=1
         )
         self.primary_color = 0x007BFF
         self.info_color = 0x17A2B8
@@ -221,12 +225,14 @@ class Bot(AutoShardedBot):
             ctx.command.reset_cooldown(ctx)
             cmd = ctx.command.name
             if can_send(ctx):
-                await ctx.send("Whoops! That shouldn't have happened. I've notified the Developers to this issue.") #TODO: Include Sentry ID
+                await ctx.send(
+                    "Whoops! That shouldn't have happened. I've notified the Developers to this issue.")  # TODO: Include Sentry ID
             else:
                 if can_react(ctx):
                     await ctx.message.add_reaction("❌")
                 try:
-                    await ctx.author.send("Whoops! That shouldn't have happened. I've notified the Developers to this issue.") #TODO: Include Sentry ID
+                    await ctx.author.send(
+                        "Whoops! That shouldn't have happened. I've notified the Developers to this issue.")  # TODO: Include Sentry ID
                 except discord.Forbidden:
                     return
 

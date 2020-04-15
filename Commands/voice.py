@@ -1,7 +1,7 @@
-import discord
-from discord.ext import commands
-from util.mongo import Mongo
 import asyncio
+
+from discord.ext import commands
+
 
 class Voice(commands.Cog, name="Voice"):
     def __init__(self, bot):

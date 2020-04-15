@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from util.mongo import Mongo
+
 
 class EditSona(commands.Cog, name="EditSona"):
     def __init__(self, bot):

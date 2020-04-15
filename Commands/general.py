@@ -1,8 +1,9 @@
+import time
+
 import discord
 from discord.ext import commands
-import os
-import time
 from disputils import BotEmbedPaginator
+
 
 class General(commands.Cog, name="General"):
     def __init__(self, bot):
@@ -32,7 +33,7 @@ class General(commands.Cog, name="General"):
 
         for cog in ctx.bot.cogs:
             cog = ctx.bot.cogs[cog]
-            if not cog.qualified_name in blacklisted_cogs:
+            if cog.qualified_name not in blacklisted_cogs:
                 if cog.get_commands:
                     embed = discord.Embed(color=ctx.author.color)
                     embed.set_author(name=cog.qualified_name, icon_url=ctx.bot.user.avatar_url)

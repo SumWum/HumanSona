@@ -1,4 +1,4 @@
-from .owner import Owner
+from Commands.owner import Owner
 
 def setup(bot):
     bot.add_cog(Owner(bot))

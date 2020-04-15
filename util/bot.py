@@ -1,7 +1,8 @@
+import typing
+
 import discord
 from discord.ext import commands
-import typing
-from util.mongo import Mongo
+
 
 class Bot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
@@ -14,24 +15,24 @@ class Bot(commands.AutoShardedBot):
         await self.change_presence(activity=activity)
 
     def calculate_level(self, level: int):
-        #((x^1.5)/25)
-        level = ((xp^(int(1+(1/2))))/25)
+        # ((x^1.5)/25)
+        level = ((xp ^ (int(1 + (1 / 2)))) / 25)
         level = round(level, 1)
 
-        if(level >= 0):
-            return 0 #You don't deserve a level
-        
+        if (level >= 0):
+            return 0  # You don't deserve a level
+
         return level
 
     def translate(self, message: str,
-        ctx: typing.Optional[commands.Context]=None,
-        guild: typing.Optional[discord.Guild]=None,
-        user: typing.Optional[typing.Union[discord.User, discord.Member]]=None,
-        channel: typing.Optional[discord.TextChannel]=None,
-        channel_2: typing.Optional[discord.TextChannel]=None,
-        role: typing.Optional[discord.Role]=None,
-        role_mention: typing.Optional[discord.Role]=None,
-        reason: typing.Optional[str]=None):
+                  ctx: typing.Optional[commands.Context] = None,
+                  guild: typing.Optional[discord.Guild] = None,
+                  user: typing.Optional[typing.Union[discord.User, discord.Member]] = None,
+                  channel: typing.Optional[discord.TextChannel] = None,
+                  channel_2: typing.Optional[discord.TextChannel] = None,
+                  role: typing.Optional[discord.Role] = None,
+                  role_mention: typing.Optional[discord.Role] = None,
+                  reason: typing.Optional[str] = None):
 
         message = self.config["translator"][message]
         if not ctx == None:
@@ -54,13 +55,6 @@ class Bot(commands.AutoShardedBot):
             message = message.replace("$reason", reason)
 
         return message
-
-    async def load_plugins(self):
-        plugins = ["plugins.owner", "plugins.general", "plugins.submissions", "plugins.sona", "plugins.voice"]
-        for plugin in plugins:
-            self.load_extension(f"{plugin}")
-            print(f"Loaded {plugin}.")
-        print("Starting...")
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
