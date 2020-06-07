@@ -16,8 +16,7 @@ class Mongo:
      
     def save(data):
         for document in data:
-            collection.find_and_modify(query={"name": document}, update={"$set": data[document]}    
+            collection.find_and_modify(query={"name": document}, update={"$set": data[document]})
     
     def remove_field(name, key):
-        collection.find_and_modify(query={"name": name}, update={"$unset": {key:1}})
-
+        collection.find_one_and_update(query={"name": name}, update={"$unset": {key:1}})

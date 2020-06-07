@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 # https://www.webpagefx.com/tools/emoji-cheat-sheet/
-from checks.bot_checks import can_send, can_embed
+from Checks.bot_checks import can_send, can_embed
 
 
 def get_icon():
