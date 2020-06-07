@@ -32,8 +32,8 @@ class EditSona(commands.Cog, name="EditSona"):
 
     @commands.command()
     async def editsona(self, ctx):
-        sona_edit_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         """Edits your sona."""
+        sona_edit_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
         data = Handlers.Mongo.read()
@@ -167,6 +167,7 @@ class EditSona(commands.Cog, name="EditSona"):
 
     @commands.command(aliases=["delsona"])
     async def deletesona(self, ctx):
+        """Deletes your profile"""
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
         data = Handlers.Mongo.read()
