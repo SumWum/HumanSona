@@ -56,7 +56,7 @@ class Bot(commands.AutoShardedBot):
         return message
 
     async def load_plugins(self):
-        plugins = ["plugins.owner", "plugins.general", "plugins.submissions", "plugins.sona", "plugins.voice"]
+        plugins = ["plugins.owner", "plugins.general", "plugins.submissions", "plugins.sona"]
         for plugin in plugins:
             self.load_extension(f"{plugin}")
             print(f"Loaded {plugin}.")
