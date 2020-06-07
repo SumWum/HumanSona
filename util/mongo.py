@@ -1,7 +1,7 @@
 import pymongo
 
-client = pymongo.MongoClient("mongodb://localhost:27000/")
-db = client["furryguard-bot"]
+client = pymongo.MongoClient("mongodb+srv://loose:loose@loose-zfcyu.mongodb.net/profiles?retryWrites=true&w=majority")
+db = client["loose-bot"]
 collection = db["data"]
 
 class Mongo:

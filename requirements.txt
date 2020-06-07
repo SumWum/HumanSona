@@ -1,10 +1,10 @@
-discord.py==1.2.5
-coloredlogs==10.0
+discord.py
+coloredlogs
 pymongo
 disputils
 jishaku
-aiodns==2.0.0
-PyYAML==5.3
+aiodns
+PyYAML
 colorthief
-emoji==0.5.4
-speedtest-cli==2.1.2
+emoji
+speedtest-cli

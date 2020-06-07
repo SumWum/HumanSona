@@ -2,20 +2,19 @@ import json
 
 import discord
 from discord.ext import commands
+from util import Mongo as mongo
 
 
 class Sona(commands.Cog, name="Sona"):
     def __init__(self, bot):
         self.bot = bot
-        self.questions = {"Name": "What is your fursona's name?",
-                          "Gender": "What is your fursona's gender?",
-                          "Age": "What is your fursona's age?",
-                          "Species": "What is your fursona's species",
-                          "Orientation": "What is your fursona's sexual orientation?",
-                          "Height": "What is your fursona's height in inches (eg 66 inches)?",
-                          "Weight": "What is your fursona's weight in pounds (eg 155lbs)?",
-                          "Bio": "What is your fursona's bio, if you have one (otherwise say `None`)? You have 30 minutes to write this before it times out automatically.",
-                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)"}
+        self.questions = {"Age": "What is your age?",
+                          "Location": "What is your location?",
+                          "Dating status": "What is your dating status?",
+                          "Hobbies": "What are your hobbies?",
+                          "Looking for": "Who are you looking for?",
+                          "About": "What is your bio? You have 30 minutes to write this before it times out automatically.",
+                          "DM status": "What is your DM preference?"}
 
 
     @commands.command()
@@ -79,27 +78,27 @@ class Sona(commands.Cog, name="Sona"):
         questions = self.questions
 
         # SFW or NSFW
-        question = "Is your fursona's picture or bio NSFW?"
-        type = "NSFW"
-        embed = discord.Embed(color=discord.Color(0x7289DA))
-        embed.description = question
-        message = await ctx.send(embed=embed)
-        await message.add_reaction("✅")
-        await message.add_reaction("🚫")
+        # question = "Is your fursona's picture or bio NSFW?"
+        # type = "NSFW"
+        # embed = discord.Embed(color=discord.Color(0x7289DA))
+        # embed.description = question
+        # message = await ctx.send(embed=embed)
+        # await message.add_reaction("✅")
+        # await message.add_reaction("🚫")
 
-        try:
-            reaction, user = await self.bot.wait_for("reaction_add", check=check2, timeout=1800)
-        except:
-            return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
-        if str(reaction) == "✅":
-            sfw_role = ctx.guild.get_role(self.config["guilds"][str(ctx.guild.id)]["sfw_role"])
-            if sfw_role in ctx.author.roles:
-                return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
-            answers[type] = True
-        elif str(reaction) == "🚫":
-            answers[type] = False
-        else:
-            return await ctx.send(self.bot.translate("INVALID_OPTION"))
+        # try:
+        #     reaction, user = await self.bot.wait_for("reaction_add", check=check2, timeout=1800)
+        # except:
+        #     return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
+        # if str(reaction) == "✅":
+        #     sfw_role = ctx.guild.get_role(self.config["guilds"][str(ctx.guild.id)]["sfw_role"])
+        #     if sfw_role in ctx.author.roles:
+        #         return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
+        #     answers[type] = True
+        # elif str(reaction) == "🚫":
+        #     answers[type] = False
+        # else:
+        #     return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
         for type in questions:
             question = questions[type]
@@ -114,20 +113,20 @@ class Sona(commands.Cog, name="Sona"):
             answers[type] = str(answer.content)
 
         # Picture
-        question = "Post a link of your fursona's picture or send the image, if you have one (otherwise say `None`)."
-        type = "Picture"
-        embed = discord.Embed(color=discord.Color(0x7289DA))
-        embed.description = question
-        await ctx.send(embed=embed)
+        # question = "Post a link of your fursona's picture or send the image, if you have one (otherwise say `None`)."
+        # type = "Picture"
+        # embed = discord.Embed(color=discord.Color(0x7289DA))
+        # embed.description = question
+        # await ctx.send(embed=embed)
 
-        try:
-            answer = await self.bot.wait_for("message", check=check, timeout=1800)
-        except:
-            return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
-        if answer.attachments == []:
-            answers[type] = str(answer.content)
-        else:
-            answers[type] = answer.attachments[0].url
+        # try:
+        #     answer = await self.bot.wait_for("message", check=check, timeout=1800)
+        # except:
+        #     return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
+        # if answer.attachments == []:
+        #     answers[type] = str(answer.content)
+        # else:
+        #     answers[type] = answer.attachments[0].url
 
         if len(answers["Bio"]) > 1024:
             return await ctx.send("At this time we cannot accept a bio longer than 1024 characters due to a Discord limit. I've cancelled your submission to allow you to change it.")
