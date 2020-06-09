@@ -4,7 +4,7 @@ import discord
 import asyncio
 import pymongo
 
-client = pymongo.MongoClient("mongodb+srv://loose:loose@loose-zfcyu.mongodb.net/?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://loose:loose@loose-zfcyu.mongodb.net/loose-bot?retryWrites=true&w=majority")
 db = client["loose-bot"]
 collection = db["data"]
 

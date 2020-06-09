@@ -1,28 +1,31 @@
-import discord
-from discord.ext import commands
-from util import Handlers
-import pprint
 import json
+import pprint
 
-class Sona(commands.Cog, name="Sona"):
+import discord
+from click.globals import push_context
+from discord.ext import commands
+
+from util import Handlers
+
+
+class Sona(commands.Cog, name="Profile"):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.bot.config
-        self.questions = {"Name": "What is your fursona's name?",
-                          "Gender": "What is your fursona's gender?",
-                          "Age": "What is your fursona's age?",
-                          "Species": "What is your fursona's species",
-                          "Orientation": "What is your fursona's sexual orientation?",
-                          "Height": "What is your fursona's height in inches (eg 66 inches)?",
-                          "Weight": "What is your fursona's weight in pounds (eg 155lbs)?",
-                          "Bio": "What is your fursona's bio, if you have one (otherwise say `None`)? You have 30 minutes to write this before it times out automatically.",
-                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)"}
+        self.questions = {"Age": "What is your age?",
+                          "Location": "What is your location?",
+                          "Dating Status": "What is your current dating status?",
+                          "Hobbies": "What are your hobbies/interests?",
+                          "Looking For": "Who/what kind of people/person are you looking for?",
+                          "About": "What is you bio? You have 30 minutes to write this before it times out automatically.",
+                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)",
+                          "DM Status": "What is your current DMs status?"}
 
 
     @commands.command()
     @commands.cooldown(rate=1, per=120.0, type=commands.BucketType.user)
-    async def sona(self, ctx, member: discord.Member=None):
-        """Displays your sona.\nIf the sona is NSFW then the command must be executed in a NSFW channel"""
+    async def profile(self, ctx, member: discord.Member=None):
+        """Displays your profile.\nIf the profile is NSFW then the command must be executed in a NSFW channel"""
         data = Handlers.Mongo.read()
         if member == None:
             member = ctx.author
@@ -56,14 +59,38 @@ class Sona(commands.Cog, name="Sona"):
 
 
     @commands.command()
-    async def setsona(self, ctx):
-        """Creates a sona."""
+    async def setprofile(self, ctx):
+        """Creates a profile."""
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
         data = Handlers.Mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         if str(ctx.author.id) in data["sonas"]:
             return await ctx.send(self.bot.translate("SONA_EXISTS"))
+
+        guild_config = self.config["guilds"][str(ctx.guild.id)]
+        genderrole = list(guild_config["gender"])
+        orientationrole = list(guild_config["orientation"])
+        personalityrole = list(guild_config["personality"])
+        pingsettingsrole = list(guild_config["pingSettings"])
+        relationshiprole = list(guild_config["relationship"])
+        verificationrole = list(guild_config["verification"])
+
+        for role in ctx.author.roles:
+            if not role.id in genderrole:
+                return await ctx.send("You are missing your Gender role, visit the <#690055478796877890> channel.")
+
+            if not role.id in orientationrole: 
+                return await ctx.send("You are missing your Orientation role, visit the <#690055478796877890> channel.")
+
+            if not role.id in personalityrole: 
+                return await ctx.send("You are missing your Personality role, visit the <#690055478796877890> channel.")
+
+            if not role.id in pingsettingsrole: 
+                return await ctx.send("You are missing your Ping Settings role, visit the <#690055478796877890> channel.")
+
+            if not role.id in relationshiprole: 
+                return await ctx.send("You are missing your Relationship role, visit the <#690055478796877890> channel.")
 
         try:
             ctx.channel = (await ctx.author.send(self.bot.translate("SONA_START"))).channel
@@ -79,28 +106,101 @@ class Sona(commands.Cog, name="Sona"):
         answers = {}
         questions = self.questions
 
+        # Verification Roles
+        type = "Verification Roles"
+        ver = []
+        for role in ctx.author.roles:
+            if role.id in verificationrole:
+                ver.append('<@&%s>' % role.id)
+        ver = str(ver)
+        ver = ver.replace('[', '')
+        ver = ver.replace(']', '')
+        ver = ver.replace('\'', '')
+        answers[type] = ver
+
+        # Gender
+        type = "Gender"
+        ver1 = []
+        for role in ctx.author.roles:
+            if role.id in genderrole:
+                ver1.append('<@&%s>' % role.id)
+        ver1 = str(ver1)
+        ver1 = ver1.replace('[', '')
+        ver1 = ver1.replace(']', '')
+        ver1 = ver1.replace('\'', '')
+        answers[type] = ver1
+
+        # Orientation
+        type = "Orientation"
+        ver2 = []
+        for role in ctx.author.roles:
+            if role.id in orientationrole:
+                ver2.append('<@&%s>' % role.id)
+        ver2 = str(ver2)
+        ver2 = ver2.replace('[', '')
+        ver2 = ver2.replace(']', '')
+        ver2 = ver2.replace('\'', '')
+        answers[type] = ver2
+
+        # Personality
+        type = "Personality"
+        ver3 = []
+        for role in ctx.author.roles:
+            if role.id in personalityrole:
+                ver3.append('<@&%s>' % role.id)
+        ver3 = str(ver3)
+        ver3 = ver3.replace('[', '')
+        ver3 = ver3.replace(']', '')
+        ver3 = ver3.replace('\'', '')
+        answers[type] = ver3
+
+        # Ping Settings
+        type = "Ping Settings"
+        ver4 = []
+        for role in ctx.author.roles:
+            if role.id in pingsettingsrole:
+                ver4.append('<@&%s>' % role.id)
+        ver4 = str(ver4)
+        ver4 = ver4.replace('[', '')
+        ver4 = ver4.replace(']', '')
+        ver4 = ver4.replace('\'', '')
+        answers[type] = ver4
+
+        # Relationship
+        type = "Relationship"
+        ver5 = []
+        for role in ctx.author.roles:
+            if role.id in relationshiprole:
+                ver5.append('<@&%s>' % role.id)
+        ver5 = str(ver5)
+        ver5 = ver5.replace('[', '')
+        ver5 = ver5.replace(']', '')
+        ver5 = ver5.replace('\'', '')
+        answers[type] = ver5
+
         # SFW or NSFW
         question = "Is your fursona's picture or bio NSFW?"
         type = "NSFW"
-        embed = discord.Embed(color=discord.Color(0x7289DA))
-        embed.description = question
-        message = await ctx.send(embed=embed)
-        await message.add_reaction("✅")
-        await message.add_reaction("🚫")
+        answers[type] = False
+        # embed = discord.Embed(color=discord.Color(0x7289DA))
+        # embed.description = question
+        # message = await ctx.send(embed=embed)
+        # await message.add_reaction("✅")
+        # await message.add_reaction("🚫")
 
-        try:
-            reaction, user = await self.bot.wait_for("reaction_add", check=check2, timeout=1800)
-        except:
-            return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
-        if str(reaction) == "✅":
-            sfw_role = ctx.guild.get_role(self.config["guilds"][str(ctx.guild.id)]["sfw_role"])
-            if sfw_role in ctx.author.roles:
-                return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
-            answers[type] = True
-        elif str(reaction) == "🚫":
-            answers[type] = False
-        else:
-            return await ctx.send(self.bot.translate("INVALID_OPTION"))
+        # try:
+        #     reaction, user = await self.bot.wait_for("reaction_add", check=check2, timeout=1800)
+        # except:
+        #     return await ctx.send(self.bot.translate("TIMED_OUT", ctx=ctx))
+        # if str(reaction) == "✅":
+        #     sfw_role = ctx.guild.get_role(self.config["guilds"][str(ctx.guild.id)]["sfw_role"])
+        #     if sfw_role in ctx.author.roles:
+        #         return await ctx.send(self.bot.translate("NSFW_REQUIRED"))
+        #     answers[type] = True
+        # elif str(reaction) == "🚫":
+        #     answers[type] = False
+        # else:
+        #     return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
         for type in questions:
             question = questions[type]
@@ -115,7 +215,7 @@ class Sona(commands.Cog, name="Sona"):
             answers[type] = str(answer.content)
 
         # Picture
-        question = "Post a link of your fursona's picture or send the image, if you have one (otherwise say `None`)."
+        question = "Post a link of a picture you'd like to include with your profile or send the image. If you don't have one, say `None`."
         type = "Picture"
         embed = discord.Embed(color=discord.Color(0x7289DA))
         embed.description = question
@@ -190,8 +290,8 @@ class Sona(commands.Cog, name="Sona"):
                 answers["NSFW"] = True
             else:
                 answers["NSFW"] = False
-            if answers["Bio"] == "None":
-                answers["Bio"] = None
+            if answers["About"] == "None":
+                answers["About"] = None
             if answers["Color"] == "None":
                 answers["Color"] == "#00FF7E"
             data["sonas"][str(member.id)] = answers
@@ -228,7 +328,7 @@ class Sona(commands.Cog, name="Sona"):
 
 
     @commands.command(hidden=True)
-    async def _sona(self, ctx, member: discord.Member=None):
+    async def _profile(self, ctx, member: discord.Member=None):
         guild_config = self.config["guilds"][str(ctx.guild.id)]
         admin_role = ctx.guild.get_role(guild_config["admin_role"])
         dev_role = ctx.guild.get_role(guild_config["dev_role"])
@@ -262,7 +362,7 @@ class Sona(commands.Cog, name="Sona"):
             embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
         except:
             embed = discord.Embed(color=discord.Color(0x00ff7e))
-        embed.set_author(name=f"{member} ({str(member.id)})'s sona.", icon_url=ctx.author.avatar_url)
+        embed.set_author(name=f"{member} ({str(member.id)})'s profile.", icon_url=ctx.author.avatar_url)
         embed.description = "Pick an option\n**Options:**:"
         for option in options:
             embed.description = f"{embed.description}\n{option} - {options[option]}"
@@ -311,8 +411,8 @@ class Sona(commands.Cog, name="Sona"):
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
             except:
                 embed = discord.Embed(color=discord.Color(0x00ff7e))
-            embed.set_author(name=f"{member} ({str(member.id)})'s sona.", icon_url=ctx.author.avatar_url)
-            embed.description = "Send the new sona value."
+            embed.set_author(name=f"{member} ({str(member.id)})'s profile.", icon_url=ctx.author.avatar_url)
+            embed.description = "Send the new profile value."
             await ctx.send(embed=embed)
             try:
                 answer = await self.bot.wait_for("message", check=check, timeout=1800)
@@ -326,13 +426,13 @@ class Sona(commands.Cog, name="Sona"):
                 newsona["NSFW"] = False
             if newsona["Picture"] == "None":
                 newsona["Picture"] = None
-            if newsona["Bio"] == "None":
-                newsona["Bio"] = None
+            if newsona["About"] == "None":
+                newsona["About"] = None
             data["sonas"][str(member.id)] = newsona
             Handlers.Mongo.save(data)
             embed = discord.Embed(color=ctx.author.color)
-            embed.set_author(name=f"{member} ({str(member.id)})'s sona.", icon_url=ctx.author.avatar_url)
-            embed.description = "Successfully modified the sona."
+            embed.set_author(name=f"{member} ({str(member.id)})'s profile.", icon_url=ctx.author.avatar_url)
+            embed.description = "Successfully modified the profile."
             return await ctx.send(embed=embed)
 
         elif option == "Delete":
@@ -356,6 +456,6 @@ class Sona(commands.Cog, name="Sona"):
 
             Handlers.Mongo.remove_field("sonas", str(member.id))
             embed = discord.Embed(color=ctx.author.color)
-            embed.set_author(name=f"{member} ({str(member.id)})'s sona.", icon_url=ctx.author.avatar_url)
-            embed.description = "Successfully deleted the sona."
+            embed.set_author(name=f"{member} ({str(member.id)})'s profile.", icon_url=ctx.author.avatar_url)
+            embed.description = "Successfully deleted the profile."
             return await ctx.send(embed=embed)

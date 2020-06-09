@@ -3,36 +3,39 @@ from discord.ext import commands
 from util import Handlers
 
 
-class EditSona(commands.Cog, name="EditSona"):
+class EditSona(commands.Cog, name="EditProfile"):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.bot.config
         self.special_fields = ["NSFW", "Picture"]
-        self.fields = {"💬": "Name",
-                       "⏰": "Age",
-                       "🚺": "Gender",
-                       "🐹": "Species",
-                       "🏳️‍🌈": "Orientation",
-                       "⬆": "Height",
-                       "🍔": "Weight",
-                       "😀": "Bio",
-                       "🖼": "Picture",
-                       "🍆": "NSFW",
-                       "🔴": "Color"}
-        self.questions = {"Name": "What is your fursona's name?",
-                          "Gender": "What is your fursona's gender?",
-                          "Age": "What is your fursona's age?",
-                          "Species": "What is your fursona's species",
-                          "Orientation": "What is your fursona's sexual orientation?",
-                          "Height": "What is your fursona's height in inches (eg 66 inches)?",
-                          "Weight": "What is your fursona's weight in pounds (eg 155lbs)?",
-                          "Bio": "What is your fursona's bio, if you have one (otherwise say `None`)? You have 30 minutes to write this before it times out automatically.",
-                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)"}
+        self.fields = {"⏰": "Age",
+                       "🗺️": "Location",
+                       "👩‍👦‍👦": "Dating Status",
+                       "⚽": "Hobbies",
+                       "♂": "Looking For",
+                       "✒️": "About",
+                       "🌈": "Color",
+                       "🔒": "DM Status",
+                       "🖼": "Picture", # below are ones the user cannot directly edit
+                       "🔐": "Verification Roles",
+                       "🧑": "Gender",
+                       "♀": "Orientation",
+                       "🧗": "Personality",
+                       "🏓": "Ping Settings",
+                       "💑": "Relationship"}
+        self.questions = {"Age": "What is your age?",
+                          "Location": "What is your location?",
+                          "Dating Status": "What is your current dating status?",
+                          "Hobbies": "What are your hobbies/interests?",
+                          "Looking For": "Who/what kind of people/person are you looking for?",
+                          "About": "What is you bio? You have 30 minutes to write this before it times out automatically.",
+                          "Color": "What is your favourite color? (HEX only, example: #00FF7E)",
+                          "DM Status": "What is your current DMs status?"}
 
 
     @commands.command()
-    async def editsona(self, ctx):
-        """Edits your sona."""
+    async def editprofile(self, ctx):
+        """Edits your profile."""
         sona_edit_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
@@ -76,8 +79,15 @@ class EditSona(commands.Cog, name="EditSona"):
         if not (str(reaction) in self.fields or str(reaction) in self.special_fields):
             return await ctx.send(self.bot.translate("INVALID_OPTION"))
 
+        guild_config = self.config["guilds"][str(ctx.guild.id)]
+        genderrole = list(guild_config["gender"])
+        orientationrole = list(guild_config["orientation"])
+        personalityrole = list(guild_config["personality"])
+        pingsettingsrole = list(guild_config["pingSettings"])
+        relationshiprole = list(guild_config["relationship"])
+        verificationrole = list(guild_config["verification"])
 
-        if not str(reaction) == "🍆" and not str(reaction) == "🖼":
+        if not str(reaction) == "🍆" and not str(reaction) == "🖼" and not str(reaction) == "🔐" and not str(reaction) == "🧑" and not str(reaction) == "♀" and not str(reaction) == "🧗" and not str(reaction) == "🏓" and not str(reaction) == "💑":
             question = self.questions[field]
             try:
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
@@ -94,7 +104,7 @@ class EditSona(commands.Cog, name="EditSona"):
             sona[field] = answer.content
         elif str(reaction) == "🖼":
             # Picture
-            question = "Post a link of your fursona's picture or send the image, if you have one (otherwise say `None`)."
+            question = "Post a link of a picture you'd like to include with your profile or send the image. If you don't have one, say `None`."
             try:
                 embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
             except:
@@ -136,14 +146,81 @@ class EditSona(commands.Cog, name="EditSona"):
                 sona[field] = False
             else:
                 return await ctx.send(self.bot.translate("INVALID_OPTION"))
+
+        elif str(reaction) == "🔐":
+            # Verif Roles
+            ver = []
+            for role in ctx.author.roles:
+                if role.id in verificationrole:
+                    ver.append('<@&%s>' % role.id)
+            ver = str(ver)
+            ver = ver.replace('[', '')
+            ver = ver.replace(']', '')
+            ver = ver.replace('\'', '')
+            sona[field] = ver
+        elif str(reaction) == "🧑":
+            # Gender
+            ver = []
+            for role in ctx.author.roles:
+                if role.id in genderrole:
+                    ver.append('<@&%s>' % role.id)
+            ver = str(ver)
+            ver = ver.replace('[', '')
+            ver = ver.replace(']', '')
+            ver = ver.replace('\'', '')
+            sona[field] = ver
+        elif str(reaction) == "♀":
+            # Orientation Roles
+            ver = []
+            for role in ctx.author.roles:
+                if role.id in orientationrole:
+                    ver.append('<@&%s>' % role.id)
+            ver = str(ver)
+            ver = ver.replace('[', '')
+            ver = ver.replace(']', '')
+            ver = ver.replace('\'', '')
+            sona[field] = ver
+        elif str(reaction) == "🧗":
+            # Personality Roles
+            ver = []
+            for role in ctx.author.roles:
+                if role.id in personalityrole:
+                    ver.append('<@&%s>' % role.id)
+            ver = str(ver)
+            ver = ver.replace('[', '')
+            ver = ver.replace(']', '')
+            ver = ver.replace('\'', '')
+            sona[field] = ver
+        elif str(reaction) == "🏓":
+            # Ping Settings Roles
+            ver = []
+            for role in ctx.author.roles:
+                if role.id in pingsettingsrole:
+                    ver.append('<@&%s>' % role.id)
+            ver = str(ver)
+            ver = ver.replace('[', '')
+            ver = ver.replace(']', '')
+            ver = ver.replace('\'', '')
+            sona[field] = ver
+        elif str(reaction) == "💑":
+            # Relationship Roles
+            ver = []
+            for role in ctx.author.roles:
+                if role.id in relationshiprole:
+                    ver.append('<@&%s>' % role.id)
+            ver = str(ver)
+            ver = ver.replace('[', '')
+            ver = ver.replace(']', '')
+            ver = ver.replace('\'', '')
+            sona[field] = ver
+
         else:
             return await ctx.send(self.bot.translate("INVALID_OPTION"))
-
         try:
             embed = discord.Embed(color=discord.Color(int(str(sona["Color"]).replace("#", ""), 16)))
         except:
             embed = discord.Embed(color=discord.Color(0x00ff7e))
-        embed.description = "Successfully edited your sona. Please wait until staff approves it."
+        embed.description = "Successfully edited your profile. Please wait until staff approves it."
         await ctx.send(embed=embed)
 
         try:
@@ -165,8 +242,8 @@ class EditSona(commands.Cog, name="EditSona"):
         for reaction in reactions:
             await message.add_reaction(reaction)
 
-    @commands.command(aliases=["delsona"])
-    async def deletesona(self, ctx):
+    @commands.command(aliases=["delprofile"])
+    async def deleteprofile(self, ctx):
         """Deletes your profile"""
         if not ctx.guild:
             ctx.guild = self.bot.get_guild(402412995084288000)
@@ -201,7 +278,7 @@ class EditSona(commands.Cog, name="EditSona"):
         Handlers.Mongo.remove_field("sonas", str(ctx.author.id))
         embed = discord.Embed(color=discord.Color(0x7289DA))
         embed.set_author(name=f"{ctx.author} ({str(ctx.author.id)})'s sona.", icon_url=ctx.author.avatar_url)
-        embed.description = "Successfully deleted the sona."
+        embed.description = "Successfully deleted the profile."
         return await ctx.send(embed=embed)
 
 
