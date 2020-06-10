@@ -13,7 +13,7 @@ class Submissions(commands.Cog, name="Submissions"):
         guild = message.guild
         if not guild:
             return
-        if not self.config["guilds"][str(guild.id)]["name"] == "central":
+        if not self.config["guilds"][str(guild.id)]["name"] == "do_not_use":
             return
 
         intro_channel = guild.get_channel(self.config["guilds"][str(guild.id)]["intro_channel"])
@@ -38,7 +38,7 @@ class Submissions(commands.Cog, name="Submissions"):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         guild = member.guild
-        if not self.config["guilds"][str(guild.id)]["name"] == "central":
+        if not self.config["guilds"][str(guild.id)]["name"] == "do_not_use":
             return
         gatekeeper_role = guild.get_role(self.config["guilds"][str(guild.id)]["gatekeeper_role"])
         await member.add_roles(gatekeeper_role)
@@ -55,7 +55,7 @@ class Submissions(commands.Cog, name="Submissions"):
         user = guild.get_member(payload.user_id)
 
         guild_config = self.config["guilds"][str(guild.id)]
-        if not guild_config["name"] == "central":
+        if not guild_config["name"] == "do_not_use":
             return
         intro_channel = guild.get_channel(guild_config["intro_channel"])
         queue_channel = guild.get_channel(guild_config["queue_channel"])

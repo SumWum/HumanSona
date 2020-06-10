@@ -38,7 +38,7 @@ class EditSona(commands.Cog, name="EditProfile"):
         """Edits your profile."""
         sona_edit_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_edit_queue_channel"])
         if not ctx.guild:
-            ctx.guild = self.bot.get_guild(402412995084288000)
+            ctx.guild = self.bot.get_guild(690032997466243188)
         data = Handlers.Mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         try:
@@ -233,10 +233,10 @@ class EditSona(commands.Cog, name="EditProfile"):
         embed.set_image(url=sona["Picture"])
         embed.timestamp = ctx.message.created_at
         try:
-            message = await sona_edit_queue_channel.send("<@&603372289060372500>", embed=embed)
+            message = await sona_edit_queue_channel.send("<@&690055427463053372>", embed=embed)
         except:
             embed.set_image(url="https://media.discordapp.net/attachments/579350335059918858/587607748653350944/Seperate_1.gif")
-            message = await sona_edit_queue_channel.send("<@&603372289060372500>", embed=embed)
+            message = await sona_edit_queue_channel.send("<@&690055427463053372>", embed=embed)
 
         reactions = ["⬆", "⬇", "✅", "🚫"]
         for reaction in reactions:
@@ -246,7 +246,7 @@ class EditSona(commands.Cog, name="EditProfile"):
     async def deleteprofile(self, ctx):
         """Deletes your profile"""
         if not ctx.guild:
-            ctx.guild = self.bot.get_guild(402412995084288000)
+            ctx.guild = self.bot.get_guild(690032997466243188)
         data = Handlers.Mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         try:
@@ -277,7 +277,7 @@ class EditSona(commands.Cog, name="EditProfile"):
 
         Handlers.Mongo.remove_field("sonas", str(ctx.author.id))
         embed = discord.Embed(color=discord.Color(0x7289DA))
-        embed.set_author(name=f"{ctx.author} ({str(ctx.author.id)})'s sona.", icon_url=ctx.author.avatar_url)
+        embed.set_author(name=f"{ctx.author} ({str(ctx.author.id)})'s profile.", icon_url=ctx.author.avatar_url)
         embed.description = "Successfully deleted the profile."
         return await ctx.send(embed=embed)
 

@@ -9,7 +9,7 @@ class Bot(commands.AutoShardedBot):
         self.config = Handlers.JSON.read()
 
     async def update_activity(self):
-        activity = discord.Activity(name=f"over Furry Central",
+        activity = discord.Activity(name=f"over Loose 18+",
                                     type=discord.ActivityType.watching)
         await self.change_presence(activity=activity)
 

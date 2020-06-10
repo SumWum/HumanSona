@@ -34,9 +34,9 @@ class Sona(commands.Cog, name="Profile"):
         except:
             return await ctx.send(self.bot.translate("NO_SONA"))
 
-        if sona["NSFW"]:
-            if not ctx.channel.is_nsfw():
-                return await ctx.send(self.bot.translate("FORBIDDEN_COMMAND_CHANNEL", ctx=ctx))
+        # if sona["NSFW"]:
+        #     if not ctx.channel.is_nsfw():
+        #         return await ctx.send(self.bot.translate("FORBIDDEN_COMMAND_CHANNEL", ctx=ctx))
 
         await ctx.message.add_reaction("\U0001f44c")
 
@@ -62,7 +62,7 @@ class Sona(commands.Cog, name="Profile"):
     async def setprofile(self, ctx):
         """Creates a profile."""
         if not ctx.guild:
-            ctx.guild = self.bot.get_guild(402412995084288000)
+            ctx.guild = self.bot.get_guild(690032997466243188)
         data = Handlers.Mongo.read()
         ctx.author = ctx.guild.get_member(ctx.author.id)
         if str(ctx.author.id) in data["sonas"]:
@@ -76,21 +76,24 @@ class Sona(commands.Cog, name="Profile"):
         relationshiprole = list(guild_config["relationship"])
         verificationrole = list(guild_config["verification"])
 
-        for role in ctx.author.roles:
-            if not role.id in genderrole:
-                return await ctx.send("You are missing your Gender role, visit the <#690055478796877890> channel.")
+        # for role in ctx.author.roles:
+        #     if not genderrole in ctx.author.roles:
+        #         return await ctx.send("You are missing your Gender role, visit the <#690055478796877890> channel.")
 
-            if not role.id in orientationrole: 
-                return await ctx.send("You are missing your Orientation role, visit the <#690055478796877890> channel.")
+        #     if not orientationrole in ctx.author.roles: 
+        #         return await ctx.send("You are missing your Orientation role, visit the <#690055478796877890> channel.")
 
-            if not role.id in personalityrole: 
-                return await ctx.send("You are missing your Personality role, visit the <#690055478796877890> channel.")
+        #     if not personalityrole in ctx.author.roles:
+        #         return await ctx.send("You are missing your Personality role, visit the <#690055478796877890> channel.")
 
-            if not role.id in pingsettingsrole: 
-                return await ctx.send("You are missing your Ping Settings role, visit the <#690055478796877890> channel.")
+        #     if not pingsettingsrole in ctx.author.roles: 
+        #         return await ctx.send("You are missing your Ping Settings role, visit the <#690055478796877890> channel.")
 
-            if not role.id in relationshiprole: 
-                return await ctx.send("You are missing your Relationship role, visit the <#690055478796877890> channel.")
+        #     if not relationshiprole in ctx.author.roles: 
+        #         return await ctx.send("You are missing your Relationship role, visit the <#690055478796877890> channel.")
+
+        #     if not verificationrole in ctx.author.roles: 
+        #         return await ctx.send("You are missing your Verification role, visit the <#690055478796877890> channel.")
 
         try:
             ctx.channel = (await ctx.author.send(self.bot.translate("SONA_START"))).channel
@@ -112,6 +115,10 @@ class Sona(commands.Cog, name="Profile"):
         for role in ctx.author.roles:
             if role.id in verificationrole:
                 ver.append('<@&%s>' % role.id)
+
+        if not ver:
+            return await ctx.send("You are missing your Verification role, visit the <#690055478796877890> channel.")
+
         ver = str(ver)
         ver = ver.replace('[', '')
         ver = ver.replace(']', '')
@@ -124,6 +131,10 @@ class Sona(commands.Cog, name="Profile"):
         for role in ctx.author.roles:
             if role.id in genderrole:
                 ver1.append('<@&%s>' % role.id)
+
+        if not ver1:
+            return await ctx.send("You are missing your Gender role, visit the <#690055478796877890> channel.")
+
         ver1 = str(ver1)
         ver1 = ver1.replace('[', '')
         ver1 = ver1.replace(']', '')
@@ -136,6 +147,10 @@ class Sona(commands.Cog, name="Profile"):
         for role in ctx.author.roles:
             if role.id in orientationrole:
                 ver2.append('<@&%s>' % role.id)
+                
+        if not ver2:
+            return await ctx.send("You are missing your Orientation role, visit the <#690055478796877890> channel.")
+
         ver2 = str(ver2)
         ver2 = ver2.replace('[', '')
         ver2 = ver2.replace(']', '')
@@ -148,6 +163,10 @@ class Sona(commands.Cog, name="Profile"):
         for role in ctx.author.roles:
             if role.id in personalityrole:
                 ver3.append('<@&%s>' % role.id)
+                
+        if not ver3:
+            return await ctx.send("You are missing your Personality role, visit the <#690055478796877890> channel.")
+
         ver3 = str(ver3)
         ver3 = ver3.replace('[', '')
         ver3 = ver3.replace(']', '')
@@ -160,6 +179,10 @@ class Sona(commands.Cog, name="Profile"):
         for role in ctx.author.roles:
             if role.id in pingsettingsrole:
                 ver4.append('<@&%s>' % role.id)
+                
+        if not ver4:
+            return await ctx.send("You are missing your Ping Settings role, visit the <#690055478796877890> channel.")
+
         ver4 = str(ver4)
         ver4 = ver4.replace('[', '')
         ver4 = ver4.replace(']', '')
@@ -172,6 +195,10 @@ class Sona(commands.Cog, name="Profile"):
         for role in ctx.author.roles:
             if role.id in relationshiprole:
                 ver5.append('<@&%s>' % role.id)
+                
+        if not ver5:
+            return await ctx.send("You are missing your Relationship role, visit the <#690055478796877890> channel.")
+
         ver5 = str(ver5)
         ver5 = ver5.replace('[', '')
         ver5 = ver5.replace(']', '')
@@ -243,10 +270,10 @@ class Sona(commands.Cog, name="Profile"):
         embed.timestamp = ctx.message.created_at
         sona_queue_channel = ctx.guild.get_channel(self.config["guilds"][str(ctx.guild.id)]["sona_queue_channel"])
         try:
-            message = await sona_queue_channel.send("<@&603372289060372500>", embed=embed)
+            message = await sona_queue_channel.send("<@&690055427463053372>", embed=embed)
         except:
             embed.set_image(url="https://media.discordapp.net/attachments/579350335059918858/587607748653350944/Seperate_1.gif")
-            message = await sona_queue_channel.send("<@&603372289060372500>", embed=embed)
+            message = await sona_queue_channel.send("<@&690055427463053372>", embed=embed)
 
         reactions = ["⬆", "⬇", "✅", "🚫"]
         for reaction in reactions:
@@ -345,8 +372,8 @@ class Sona(commands.Cog, name="Profile"):
         except:
             return await ctx.send(self.bot.translate("NO_SONA_FOUND"))
 
-        if not ctx.channel.is_nsfw():
-            return await ctx.send(self.bot.translate("FORBIDDEN_COMMAND_CHANNEL", ctx=ctx))
+        # if not ctx.channel.is_nsfw():
+        #     return await ctx.send(self.bot.translate("FORBIDDEN_COMMAND_CHANNEL", ctx=ctx))
 
         def check(answer):
             return ctx.channel == answer.channel and ctx.author == answer.author
